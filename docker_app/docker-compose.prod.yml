@@ -17,7 +17,7 @@ services:
       - 27017
     volumes:
       - mongo_cluster_mongors1n1_db:/data/db
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongors1n2:
     container_name: mongors1n2
@@ -27,7 +27,7 @@ services:
       - 27017
     volumes:
       - mongo_cluster_mongors1n2_db:/data/db
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongors1n3:
     container_name: mongors1n3
@@ -37,7 +37,7 @@ services:
       - 27017
     volumes:
       - mongo_cluster_mongors1n3_db:/data/db
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongors2n1:
     container_name: mongors2n1
@@ -47,7 +47,7 @@ services:
       - 27017
     volumes:
       - mongo_cluster_mongors2n1_db:/data/db
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongors2n2:
     container_name: mongors2n2
@@ -57,7 +57,7 @@ services:
       - 27017
     volumes:
       - mongo_cluster_mongors2n2_db:/data/db
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongors2n3:
     container_name: mongors2n3
@@ -67,7 +67,7 @@ services:
       - 27017
     volumes:
       - mongo_cluster_mongors2n3_db:/data/db
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongocfg1:
     container_name: mongocfg1
@@ -77,7 +77,7 @@ services:
       - 27017
     volumes:
       - mongo_cluster_mongocfg1_db:/data/db
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongocfg2:
     container_name: mongocfg2
@@ -87,7 +87,7 @@ services:
       - 27017
     volumes:
       - mongo_cluster_mongocfg2_db:/data/db
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongocfg3:
     container_name: mongocfg3
@@ -97,7 +97,7 @@ services:
       - 27017
     volumes:
       - mongo_cluster_mongocfg3_db:/data/db
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongos1:
     container_name: mongos1
@@ -109,7 +109,7 @@ services:
     expose:
       - 27017
     volumes:
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   mongos2:
     container_name: mongos2
@@ -121,7 +121,7 @@ services:
     expose:
       - "27017"
     volumes:
-      - ./config/user_preferences_fastapi_project/mongodb_config:/scripts
+      - ./config/user_profiles_fastapi_project/mongodb_config:/scripts
 
   user-preferences:
     build:
@@ -129,7 +129,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     env_file:
-      - config/user_preferences_fastapi_project/.env.prod
+      - config/user_profiles_fastapi_project/.env.prod
     depends_on:
       - mongos1
       - mongos2

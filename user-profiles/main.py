@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# from src.api.v1.user_profiles import user_preferences_router
+from src.api.v1.user_purchased_films import user_purchased_films_router
 from src.core.config import settings, mongodb_settings
 from src.db import mongodb
 
@@ -53,7 +53,7 @@ async def shutdown():
     mongodb.mongo_client.close()
 
 
-# app.include_router(user_preferences_router, prefix='/profiles/api/v1/user-profiles', tags=['rating'])
+app.include_router(user_purchased_films_router, prefix='/profiles/api/v1/user-profiles', tags=['purchased_films'])
 
 
 if __name__ == '__main__':
