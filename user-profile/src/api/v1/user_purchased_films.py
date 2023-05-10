@@ -63,7 +63,12 @@ async def delete_purchased_film_from_user(
     `Returns`:
         Response
     """
-    pass
+
+    await user_preferences_service.delete_purchased_film_from_user(
+        user_id=body.user_id,
+        films_for_delete=body.film_ids
+    )
+    return Response(detail='Фильм успешно удалён!')
 
 
 @user_purchased_films_router.get(

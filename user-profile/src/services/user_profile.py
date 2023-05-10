@@ -66,33 +66,34 @@ class UserProfileService:
 
         return IdResponse(id=result_id)
 
-    # async def delete_purchased_film_from_user(self, user_id: str, preferences: list[Preferences]):
-    #     """
-    #     Метод удаляет данные из профиля пользователя.
-    #
-    #     Args:
-    #         user_id: идентификатор пользователя, для которого необходимо удалить пользовательские настройки.
-    #         preferences: пользовательские настройки, которые нужно удалить.
-    #     """
-    #     user_preferences = await self._user_profile.get(dict(user_id=user_id))
-    #
-    #     if not user_preferences:
-    #         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='Для пользователя настройки еще не заданы!')
-    #
-    #     current_preferences = user_preferences.preferences
-    #
-    #     is_need_update = False
-    #     for preference_for_delete in preferences:
-    #         try:
-    #             current_preferences.remove(preference_for_delete)
-    #             is_need_update = True
-    #         except ValueError:
-    #             continue
-    #
-    #     if is_need_update:
-    #         encoded_preferences = [jsonable_encoder(preference) for preference in current_preferences]
-    #         await self._user_profile.update(dict(user_id=user_id), dict(preferences=encoded_preferences))
-    #
+    async def delete_purchased_film_from_user(self, user_id: str, films_for_delete: list[str]):
+        """
+        Метод удаляет фильм из профиля пользователя.
+
+        Args:
+            user_id: идентификатор пользователя, для которого необходимо удалить фильм.
+            films_for_delete: идентификаторы фильмов, которые нужно удалить.
+        """
+        user_profile = await self._user_profile.get(dict(user_id=user_id))
+
+        if not user_profile:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST, detail='Для пользователя не добавлено ни одного фильма!'
+            )
+
+        current_purchased_films = user_profile.purchased_films
+
+        is_need_update = False
+        for film_for_delete in films_for_delete:
+            try:
+                current_purchased_films.remove(film_for_delete)
+                is_need_update = True
+            except ValueError:
+                continue
+
+        if is_need_update:
+            await self._user_profile.update(dict(user_id=user_id), dict(purchased_films=current_purchased_films))
+
     # async def get_user_profile(
     #     self,
     #     user_ids: list[str],
