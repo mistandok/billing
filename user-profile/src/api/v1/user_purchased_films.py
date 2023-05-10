@@ -68,7 +68,7 @@ async def delete_purchased_film_from_user(
         user_id=body.user_id,
         films_for_delete=body.film_ids
     )
-    return Response(detail='Фильм успешно удалён!')
+    return Response(detail='Один или несколько фильмов успешно удалёны!')
 
 
 @user_purchased_films_router.get(
