@@ -66,39 +66,39 @@ class UserProfileService:
 
         return IdResponse(id=result_id)
 
-    async def delete_purchased_film_from_user(self, user_id: str, preferences: list[Preferences]):
-        """
-        Метод удаляет данные из профиля пользователя.
-
-        Args:
-            user_id: идентификатор пользователя, для которого необходимо удалить пользовательские настройки.
-            preferences: пользовательские настройки, которые нужно удалить.
-        """
-        user_preferences = await self._user_profile.get(dict(user_id=user_id))
-
-        if not user_preferences:
-            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='Для пользователя настройки еще не заданы!')
-
-        current_preferences = user_preferences.preferences
-
-        is_need_update = False
-        for preference_for_delete in preferences:
-            try:
-                current_preferences.remove(preference_for_delete)
-                is_need_update = True
-            except ValueError:
-                continue
-
-        if is_need_update:
-            encoded_preferences = [jsonable_encoder(preference) for preference in current_preferences]
-            await self._user_profile.update(dict(user_id=user_id), dict(preferences=encoded_preferences))
-
-    async def get_user_profile(
-        self,
-        user_ids: list[str],
-        only_with_events: bool = False
-    ) -> list[UserPreferences]:
-        return await self._user_preferences_searcher.get(user_ids, only_with_events)
+    # async def delete_purchased_film_from_user(self, user_id: str, preferences: list[Preferences]):
+    #     """
+    #     Метод удаляет данные из профиля пользователя.
+    #
+    #     Args:
+    #         user_id: идентификатор пользователя, для которого необходимо удалить пользовательские настройки.
+    #         preferences: пользовательские настройки, которые нужно удалить.
+    #     """
+    #     user_preferences = await self._user_profile.get(dict(user_id=user_id))
+    #
+    #     if not user_preferences:
+    #         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='Для пользователя настройки еще не заданы!')
+    #
+    #     current_preferences = user_preferences.preferences
+    #
+    #     is_need_update = False
+    #     for preference_for_delete in preferences:
+    #         try:
+    #             current_preferences.remove(preference_for_delete)
+    #             is_need_update = True
+    #         except ValueError:
+    #             continue
+    #
+    #     if is_need_update:
+    #         encoded_preferences = [jsonable_encoder(preference) for preference in current_preferences]
+    #         await self._user_profile.update(dict(user_id=user_id), dict(preferences=encoded_preferences))
+    #
+    # async def get_user_profile(
+    #     self,
+    #     user_ids: list[str],
+    #     only_with_events: bool = False
+    # ) -> list[UserPreferences]:
+    #     return await self._user_preferences_searcher.get(user_ids, only_with_events)
 
 
 @lru_cache()

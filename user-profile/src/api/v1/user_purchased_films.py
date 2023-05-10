@@ -37,7 +37,11 @@ async def upsert_user_purchased_films(
     `Returns`:
         IdResponse
     """
-    pass
+
+    return await user_preferences_service.upsert_user_purchased_films(
+        user_id=body.user_id,
+        purchased_films=body.film_ids
+    )
 
 
 @user_purchased_films_router.patch(

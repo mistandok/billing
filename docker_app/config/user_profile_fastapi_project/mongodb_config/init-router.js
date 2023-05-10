@@ -25,16 +25,9 @@ db.createCollection(
                     purchased_films: {
                         bsonType: [ "array" ],
                         items: {
-                            bsonType: "object",
-                            required:["film_id"],
-                            properties:{
-                                film_id:{
-                                    bsonType: "string",
-                                    description: "must be a string and is required"
-                                }
-                            }
+                            bsonType: "string",
                         },
-                        description: "must be a array of objects containing film_ids"
+                        description: "must be a array of objects containing strings"
                     }
                 }
             }

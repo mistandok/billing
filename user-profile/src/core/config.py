@@ -1,7 +1,7 @@
 """Модуль содержит настройки для работы FastApi-приложения."""
 
 import os
-from enum import Enum, StrEnum
+from enum import Enum
 from logging import config as logging_config
 from functools import cached_property
 
@@ -30,7 +30,7 @@ class DatabaseName(Enum):
     PROFILES = 'profiles'
 
 
-class UserRole(StrEnum):
+class UserRole(Enum):
     """Класс описывает пользовательские роли."""
 
     ADMIN = 'admin'

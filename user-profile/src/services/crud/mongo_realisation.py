@@ -40,7 +40,7 @@ class MongoCRUD(BaseCRUD):
         Метод создает новый объект.
 
         Args:
-            object_for_insert: новый пользовательский рейтинг для фильма.
+            object_for_insert: новый объект для записи в БД.
         """
         new_object = jsonable_encoder(object_for_insert)
         try:
