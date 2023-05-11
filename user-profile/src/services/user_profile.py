@@ -44,7 +44,10 @@ class UserProfileService:
             user_id: идентификатор пользователя.
             purchased_films: купленные фильмы.
         """
-        user_profile = await self._user_profile.get(dict(user_id=user_id))
+        try:
+            user_profile = await self._user_profile.get(dict(user_id=user_id))
+        except HTTPException:
+            user_profile = None
 
         if user_profile:
             current_purchased_films = user_profile.purchased_films
@@ -73,9 +76,9 @@ class UserProfileService:
             user_id: идентификатор пользователя, для которого необходимо удалить фильм.
             films_for_delete: идентификаторы фильмов, которые нужно удалить.
         """
-        user_profile = await self._user_profile.get(dict(user_id=user_id))
-
-        if not user_profile:
+        try:
+            user_profile = await self._user_profile.get(dict(user_id=user_id))
+        except HTTPException:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST, detail='Для пользователя не добавлено ни одного фильма!'
             )

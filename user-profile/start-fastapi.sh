@@ -15,14 +15,19 @@ wait_database()
   echo "$TYPE started"
 }
 
-if [ ${USER_PROFILES_DB_TYPE} = "mongodb" ]
+if [ ${CACHE_DB_TYPE} = "redis" ]
   then
-    wait_database $MONGOS1_HOST $MONGOS1_PORT USER_PROFILES_DB_TYPE
+    wait_database $REDIS_HOST $REDIS_PORT $CACHE_DB_TYPE
 fi
 
-if [ ${USER_PROFILES_DB_TYPE} = "mongodb" ]
+if [ ${USER_PREFERENCES_DB_TYPE} = "mongodb" ]
   then
-    wait_database $MONGOS2_HOST $MONGOS2_PORT USER_PROFILES_DB_TYPE
+    wait_database $MONGOS1_HOST $MONGOS1_PORT $USER_PREFERENCES_DB_TYPE
+fi
+
+if [ ${USER_PREFERENCES_DB_TYPE} = "mongodb" ]
+  then
+    wait_database $MONGOS2_HOST $MONGOS2_PORT $USER_PREFERENCES_DB_TYPE
 fi
 
 gunicorn main:app --workers 4\

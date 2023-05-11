@@ -2,7 +2,9 @@
 
 from os import path
 
-from src.api.v1.user_preferences import get_user_preferences_list, drop_custom_user_preference, upsert_user_preferences
+from src.api.v1.user_purchased_films import (
+    upsert_user_purchased_films, delete_purchased_film_from_user, get_user_profile
+)
 
 
 def convert_docstring_to_swagger_description(docstring: str) -> str:
@@ -22,9 +24,9 @@ def write_documentations_to_file():
                    f'Создано автоматически модулем `{path.basename(__file__)}`\n"""\n\n')
 
         api_endpoints = [
-            get_user_preferences_list,
-            drop_custom_user_preference,
-            upsert_user_preferences,
+            upsert_user_purchased_films,
+            delete_purchased_film_from_user,
+            get_user_profile,
         ]
 
         api_endpoint_description_names = [f'{func.__name__.upper()}_DESCRIPTION' for func in api_endpoints]
