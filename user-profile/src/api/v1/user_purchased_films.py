@@ -28,7 +28,7 @@ async def upsert_user_purchased_films(
 
     `Args`:
         body: тело запроса.
-        user_profiles_service: сервис для работы с профилями польтзовтелей.
+        user_profile_service: сервис для работы с профилями польтзовтелей.
         credentials: данные входа.
 
     `Returns`:
@@ -46,7 +46,7 @@ async def upsert_user_purchased_films(
 )
 async def delete_purchased_film_from_user(
     body: PurchasedFilmRequest,
-    user_preferences_service: UserProfileService = Depends(get_user_profiles_service),
+    user_profile_service: UserProfileService = Depends(get_user_profiles_service),
     credentials: HTTPTokenAuthorizationCredentials = Depends(admin_jwt_bearer),
 ) -> Response:
     """
@@ -54,14 +54,14 @@ async def delete_purchased_film_from_user(
 
     `Args`:
         body: тело запроса.
-        user_profiles_service: сервис для работы с профилями польтзовтелей.
+        user_profile_service: сервис для работы с профилями польтзовтелей.
         credentials: данные входа.
 
     `Returns`:
         Response
     """
 
-    await user_preferences_service.delete_purchased_film_from_user(
+    await user_profile_service.delete_purchased_film_from_user(
         user_id=body.user_id,
         films_for_delete=body.film_ids
     )
@@ -72,19 +72,19 @@ async def delete_purchased_film_from_user(
     '/list',
 )
 async def get_user_profile(
-    user_id: UUID | str = Query(),
-    user_preferences_service: UserProfileService = Depends(get_user_profiles_service),
+    user_id: str = Query(),
+    user_profile_service: UserProfileService = Depends(get_user_profiles_service),
     credentials: HTTPTokenAuthorizationCredentials = Depends(admin_jwt_bearer),
 ) -> UserProfile:
     """
-    Ручка позволяет получить писок купленных фильмов.
+    Ручка позволяет получить список купленных пользователем фильмов.
 
     `Args`:
         user_id: идентификатор пользователя.
-        user_profiles_service: сервис для работы с профилями польтзовтелей.
+        user_profile_service: сервис для работы с профилями польтзовтелей.
         credentials: данные входа.
 
     `Returns`:
         UserProfile
     """
-    pass
+    return await user_profile_service.get_user_profile(user_id=user_id)

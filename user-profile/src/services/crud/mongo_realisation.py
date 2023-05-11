@@ -2,6 +2,7 @@
 from http import HTTPStatus
 from typing import Any
 
+from pydantic.error_wrappers import ValidationError
 import pymongo.errors
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -33,7 +34,11 @@ class MongoCRUD(BaseCRUD):
             BaseModel
         """
         result = await self._collection.find_one(key_values)
-        return self._model(**result) if result else None
+
+        if not result:
+            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='Сущность не существует!')
+
+        return self._model(**result)
 
     async def insert(self, object_for_insert: MongoJSONModel) -> str:
         """

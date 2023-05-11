@@ -93,6 +93,9 @@ class UserProfileService:
         if is_need_update:
             await self._user_profile.update(dict(user_id=user_id), dict(purchased_films=current_purchased_films))
 
+    async def get_user_profile(self, user_id: str) -> UserProfile:
+        return await self._user_profile.get(dict(user_id=user_id))
+
 
 @lru_cache()
 def get_user_profiles_service(
