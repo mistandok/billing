@@ -10,4 +10,4 @@ class PurchasedFilmRequest(JSONModel):
     """
 
     user_id: str
-    film_id: list[str]
+    film_ids: list[str]

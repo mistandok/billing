@@ -3,9 +3,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
 
-# from src.docs.api_documentations import (
-#     GET_USER_PREFERENCES_LIST_DESCRIPTION, DROP_CUSTOM_USER_PREFERENCE_DESCRIPTION, UPSERT_USER_PREFERENCES_DESCRIPTION
-# )
 from src.models.auth_models import HTTPTokenAuthorizationCredentials
 from src.models.requests_body_models import PurchasedFilmRequest
 from src.models.response_models import IdResponse, Response
@@ -23,7 +20,7 @@ admin_jwt_bearer = JWTBearer(admin_required=True)
 )
 async def upsert_user_purchased_films(
     body: PurchasedFilmRequest,
-    user_preferences_service: UserProfileService = Depends(get_user_profiles_service),
+    user_profile_service: UserProfileService = Depends(get_user_profiles_service),
     credentials: HTTPTokenAuthorizationCredentials = Depends(admin_jwt_bearer),
 ) -> IdResponse:
     """
@@ -37,7 +34,11 @@ async def upsert_user_purchased_films(
     `Returns`:
         IdResponse
     """
-    pass
+
+    return await user_profile_service.upsert_user_purchased_films(
+        user_id=body.user_id,
+        purchased_films=body.film_ids
+    )
 
 
 @user_purchased_films_router.patch(
@@ -59,7 +60,12 @@ async def delete_purchased_film_from_user(
     `Returns`:
         Response
     """
-    pass
+
+    await user_preferences_service.delete_purchased_film_from_user(
+        user_id=body.user_id,
+        films_for_delete=body.film_ids
+    )
+    return Response(detail='Один или несколько фильмов успешно удалёны!')
 
 
 @user_purchased_films_router.get(
