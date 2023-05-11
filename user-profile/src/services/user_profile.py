@@ -4,7 +4,6 @@ from functools import lru_cache
 from http import HTTPStatus
 
 from fastapi import Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 
 from src.core.config import DatabaseName, CollectionName
 from src.db.mongodb import get_mongo_client
@@ -93,13 +92,6 @@ class UserProfileService:
 
         if is_need_update:
             await self._user_profile.update(dict(user_id=user_id), dict(purchased_films=current_purchased_films))
-
-    # async def get_user_profile(
-    #     self,
-    #     user_ids: list[str],
-    #     only_with_events: bool = False
-    # ) -> list[UserPreferences]:
-    #     return await self._user_preferences_searcher.get(user_ids, only_with_events)
 
 
 @lru_cache()
