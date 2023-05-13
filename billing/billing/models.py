@@ -6,13 +6,10 @@ class Consumer(TimeStampedModel):
     user_id = models.UUIDField(verbose_name="ID пользователя", null=True, blank=False)
     subscribe = models.ManyToManyField('Subscribe', through='ConsumerSubscribe')
 
-    #TODO: add INLINE
-
 
 #TODO: Consumer может иметь >1 подписки => связь М-to-М
 # Мы реализовали через ConsumerSubscribe
 
-# 
 # class Subscription(TimeStampedModel):
 #     class SubscribeType(models.TextChoices):
 #         OUR = "OU", "Наш кинотеатр"
@@ -79,6 +76,7 @@ class Subscribe(UUIDMixin):
 
     class Meta:
         db_table = "billing\".\"subscription"
+
 
 class Filmwork(UUIDMixin):
     title = models.CharField(

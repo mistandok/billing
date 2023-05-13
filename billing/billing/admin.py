@@ -1,21 +1,21 @@
 from django.contrib import admin
-from .models import Consumer, Payment, Subscribe, Filmwork, FilmworkSubscribe
-
-
-# Register your models here.
-@admin.register(Consumer)
-class ConsumerAdmin(admin.ModelAdmin):
-    pass
-
-
-# @admin.register(Subscription)
-# class SubscriptionAdmin(admin.ModelAdmin):
-#     pass
+from .models import Consumer, Payment, Subscribe, Filmwork, FilmworkSubscribe, ConsumerSubscribe
 
 
 class SubscribeFilmworkInline(admin.TabularInline):
     model = FilmworkSubscribe
     autocomplete_fields = ('subscribe',)
+
+
+class ConsumerSubscribeInline(admin.TabularInline):
+    model = ConsumerSubscribe
+    autocomplete_fields = ('subscribe',)
+
+
+@admin.register(Consumer)
+class ConsumerAdmin(admin.ModelAdmin):
+    inlines = (ConsumerSubscribeInline,)
+    search_fields = ('user_id',)
 
 
 @admin.register(Payment)
