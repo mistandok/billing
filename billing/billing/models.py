@@ -1,8 +1,11 @@
+"""Модуль описания БД."""
+
 from django.db import models
 from config.mixins import TimeStampedModel, UUIDMixin
 
 
 class Consumer(TimeStampedModel):
+    """Модель описывает сущность покупателя"""
     user_id = models.UUIDField(verbose_name="ID пользователя", null=True, blank=False)
     subscribe = models.ManyToManyField('Subscribe', through='ConsumerSubscribe')
 
@@ -37,6 +40,7 @@ class Consumer(TimeStampedModel):
 #TODO: Payments - отслеживает платежи клиентов? Если так, то это похоже на историю
 # платежей => можно хранить историю платежей из Stripe?
 class Payment(UUIDMixin):
+    """Модель описывает сущность платежа"""
     subscription = models.ForeignKey(
         'Subscribe',
         verbose_name="Подписка",
@@ -60,6 +64,7 @@ class Payment(UUIDMixin):
 
 
 class Subscribe(UUIDMixin):
+    """Модель описывает сущность подписки"""
     class Type(models.TextChoices):
         SUBSCRIBER = "subscriber", "Наш кинотеатр"
         AMEDIATEKA = "amediateka", "Амедиатека"
@@ -79,6 +84,7 @@ class Subscribe(UUIDMixin):
 
 
 class Filmwork(UUIDMixin):
+    """Модель описывает сущность кинопроизведения"""
     title = models.CharField(
         max_length=200
     )
@@ -91,6 +97,7 @@ class Filmwork(UUIDMixin):
 
 
 class FilmworkSubscribe(UUIDMixin):
+    """М2М модель кинопроизведения и подписки"""
     filmwork = models.ForeignKey(
         Filmwork,
         on_delete=models.CASCADE,
@@ -112,6 +119,7 @@ class FilmworkSubscribe(UUIDMixin):
 
 
 class ConsumerSubscribe(UUIDMixin, TimeStampedModel):
+    """М2М модель покупателя и подписки"""
     subscribe = models.ForeignKey(
         Subscribe,
         on_delete=models.CASCADE,
