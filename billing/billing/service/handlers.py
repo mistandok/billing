@@ -10,8 +10,7 @@ from billing.models import Filmwork
 @receiver(m2m_changed, sender=Filmwork.subscribe.through)
 def filmwork_subscribe_changed(sender, **kwargs):
     instance = kwargs.get('instance', None)
-    raise ValueError('qqq')
+    print('q')
     if instance:
         print('1')
         instance.update(modified_subscribe_date=dt.now())
-        instance.save()
