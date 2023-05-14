@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from config.settings import ETLProcessType, PROCESS_IS_STARTED_STATE, MODIFIED_STATE, DATETIME_FORMAT
+from etl.config.settings import ETLProcessType, settings, MODIFIED_STATE
 
 from .extractors.extractors import BaseExtractor
 from .loaders.loaders import BaseLoader
@@ -128,7 +128,7 @@ class ETLProcess:
         Returns:
             True - другие процессы сейчас запущены. False - другие процессы не запущены.
         """
-        is_started = self._state_storage.get_value(PROCESS_IS_STARTED_STATE)
+        is_started = self._state_storage.get_value(settings.process_is_started_state)
 
         try:
             is_started = bool(int(is_started))
@@ -145,7 +145,7 @@ class ETLProcess:
         Args:
             is_started: True - процесс запущен, False - процесс завершен.
         """
-        self._state_storage.set_value(PROCESS_IS_STARTED_STATE, int(is_started))
+        self._state_storage.set_value(settings.process_is_started_state, int(is_started))
 
     def _remember_last_modified_state(self):
         """
@@ -158,7 +158,7 @@ class ETLProcess:
 
         if modified_state:
             try:
-                new_value = datetime.strftime(modified_state, DATETIME_FORMAT)
+                new_value = datetime.strftime(modified_state, settings.date_format)
             except TypeError as error:
                 logger.error(f'Не удалось сохранить состояние {modified_state_name} со значением {modified_state}')
                 raise error

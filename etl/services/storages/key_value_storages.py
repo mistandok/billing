@@ -124,49 +124,20 @@ class KeyValueStorageFactory:
     }
 
     @staticmethod
-    def storage_by_type(storage_type: StorageType, *args, **kwargs) -> KeyValueStorage:
+    def storage_by_client(client, *args, **kwargs) -> KeyValueStorage:
         """
         Метод возвращает инстанс хранилища по заданному типу.
 
         Args:
-            storage_type: тип хранилища.
+            client: клиент для работы с хранилищем.
             args: позиционные аргументы.
             kwargs: именнованные аргументы.
 
         Returns:
             starage (KeyValueStorage): хранилище.
         """
-        try:
-            storage_class = KeyValueStorageFactory.storages[storage_type]
-            return storage_class(*args, **kwargs)
-        except KeyError as error:
-            logger.error(f'Для хранилища типа {storage_type.value} не существует реализации.', exc_info=True)
-            raise error
+        if isinstance(client, Redis):
+            return RedisStorage(client)
 
-
-class StorageAdapterFactory:
-    """Фабрика классов для адаптеров хранилищ."""
-
-    storage_adapters = {
-        StorageType.REDIS: Redis,
-    }
-
-    @staticmethod
-    def storage_adapter_by_type(storage_type: StorageType, *args, **kwargs) -> Any:
-        """
-        Метод возвращает инстанс адаптера хранилища по заданному типу.
-
-        Args:
-            storage_type: тип хранилища.
-            args: позиционные аргументы.
-            kwargs: именнованные аргументы.
-
-        Returns:
-            starage_adapter (Any): адаптер хранилища.
-        """
-        try:
-            storage_adapter = StorageAdapterFactory.storage_adapters[storage_type]
-            return storage_adapter(*args, **kwargs)
-        except KeyError as error:
-            logger.error(f'Для хранилища типа {storage_type.value} не существует адаптера хранилища.', exc_info=True)
-            raise error
+        logger.error(f'Для клиента {client} не существует реализации.')
+        raise ValueError(f'Для клиента {client} не существует реализации.')

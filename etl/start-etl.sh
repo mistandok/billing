@@ -20,11 +20,6 @@ if [ ${DB_TYPE} = "postgres" ]
     wait_database $DB_HOST $DB_PORT $DB_TYPE
 fi
 
-if [ ${TARGET_DB_TYPE} = "elasticsearch" ]
-  then
-    wait_database $ES_HOST $ES_PORT $TARGET_DB_TYPE
-fi
-
 if [ ${STATE_STORAGE_TYPE} = "redis" ]
   then
     wait_database $REDIS_HOST $REDIS_PORT $STATE_STORAGE_TYPE
