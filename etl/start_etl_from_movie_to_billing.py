@@ -23,7 +23,6 @@ def main():
         contextlib.closing(connect(**billing_db_settings.dsl(), cursor_factory=DictCursor)) as billing_db,
     ):
         process_parameters = get_movie_to_billing_etl_process_parameters(redis, movies_db, billing_db)
-
         while True:
             with ETLProcess(process_parameters) as process:
                 process.start()

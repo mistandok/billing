@@ -6,7 +6,7 @@ from typing import Optional
 from etl.config.settings import ETLProcessType, QueryType, MODIFIED_STATE
 from etl.services.storages.key_value_storages import KeyValueStorage
 from etl.services.logs.logs_setup import get_logger
-from .pg_templates import MOVIES_QUERY
+from .pg_templates import MOVIES_QUERY, BILLING_QUERY
 
 logger = get_logger()
 
@@ -82,11 +82,66 @@ class MoviesSelectETLQuery(BaseETLQuery):
         )
 
 
+class BillingMoviesSelectETLQuery(BaseETLQuery):
+    """Класс для генерации запроса по выгрузке данных из billing"""
+
+    def get_sql(self) -> str:
+        """
+        Метод возвращает SQL, который нужно выполнить для получения данных.
+
+        Returns:
+            sql-запрос.
+        """
+        logger.info(f'Генерируем запрос для {self._process_type}')
+        query = BILLING_QUERY.format(
+            where_condition=self._get_where_condition(),
+        )
+        logger.info(f'Запрос к БД: \n {query}')
+
+        return query
+
+    def _get_where_condition(self) -> str:
+        """
+        Метод возвращает where условия для запроса.
+
+        Returns:
+            where для sql-запроса.
+        """
+        modified_state = self._get_modified_state()
+
+        if modified_state is None:
+            return 'WHERE TRUE'
+
+        return "WHERE fw.modified_subscribe_date > '{modified_state}'::timestamp".format(
+            modified_state=modified_state,
+        )
+
+
+class BillingMoviesUpdateETLQuery(BaseETLQuery):
+    """Класс для генерации запроса по обновлению данных в movie из billing"""
+
+    def get_sql(self) -> str:
+        """
+        Метод возвращает SQL, который нужно выполнить для получения данных.
+
+        Returns:
+            sql-запрос.
+        """
+        return """
+            UPDATE content.film_work
+            SET subscribe_types = update_payload.subscribe_types::text[]
+            FROM (VALUES (%s,%s)) as update_payload(id, subscribe_types)
+            WHERE content.film_work.id::text = update_payload.id::text
+        """
+
+
 class ETLQueryFactory:
     """Фабрика классов для ETLQuery."""
 
     queries = {
-        QueryType.MOVIE_FILMWORK_SELECT: MoviesSelectETLQuery
+        QueryType.MOVIE_FILMWORK_SELECT: MoviesSelectETLQuery,
+        QueryType.BILLING_FILMWORK_SELECT: BillingMoviesSelectETLQuery,
+        QueryType.BILLING_FILMWORK_UPDATE: BillingMoviesUpdateETLQuery,
     }
 
     @staticmethod

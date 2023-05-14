@@ -96,6 +96,7 @@ class QueryType(str, Enum):
     MOVIE_FILMWORK_SELECT = 'movie_filmwork_select'
     # для передачи данных из billing в movie-admin
     BILLING_FILMWORK_SELECT = 'billing_filmwork_select'
+    BILLING_FILMWORK_UPDATE = 'billing_filmwork_update'
 
 
 MODIFIED_STATE = {

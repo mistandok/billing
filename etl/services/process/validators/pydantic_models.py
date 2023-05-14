@@ -10,3 +10,10 @@ class BillingMovie(BaseModel):
 
     id: str
     title: str
+
+
+class Movie(BaseModel):
+    """Модель, описывающая фильм в movie."""
+
+    id: str
+    subscribe_types: list[str]

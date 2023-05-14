@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from etl.services.logs.logs_setup import get_logger
 from etl.config.settings import settings
+from ..queries.queries import BaseETLQuery
 from ..validators.validators import ModelValidator
 
 logger = get_logger()
@@ -22,7 +23,7 @@ class BaseLoader(ABC):
         pass
 
 
-class PostgresLoader(BaseLoader):
+class PostgresUpsertLoader(BaseLoader):
     """Класс отвечает за загрузку данных в постгре"""
 
     def __init__(
@@ -57,7 +58,7 @@ class PostgresLoader(BaseLoader):
 
     @property
     def _sql_target_field_names(self):
-        return f'({",".join(self._target_field_names)})'
+        return ",".join(self._target_field_names)
 
     @property
     def _sql_conflict_condition(self):
@@ -78,10 +79,50 @@ class PostgresLoader(BaseLoader):
     def load(self, data_for_load: Iterable[dict]):
         logger.info('Загружаем данные в Postgres.')
         sql = f"""
-            INSERT INTO {self._target_table_name} {self._sql_target_field_names}
+            INSERT INTO {self._target_table_name} ({self._sql_target_field_names})
             VALUES ({self._placeholders})
             {self._sql_conflict_condition}
         """
+        logger.info(f'Сформированный запрос для всатвки данных в Postgres: {sql}')
+        execute_batch(self._cursor, sql, self._get_valid_values(data_for_load), settings.db_buffer_size)
+        self._client.commit()
+        return True
+
+    def _get_valid_values(self, data_for_load: Iterable[dict]):
+        for row in self._validator.get_valid_data(data_for_load):
+            yield tuple(row.get(field_name) for field_name in self._target_field_names)
+
+
+class PostgreHardQueryLoader(BaseLoader):
+    """Класс отвечает за загрузку данных в постгре c жестко заданным запросом"""
+
+    def __init__(
+            self,
+            client: psycopg2,
+            target_model: type(BaseModel),
+            query: BaseETLQuery
+    ):
+        """
+        Инициализирующий метод.
+
+        Args:
+            client: клиент Elasticsearch.
+            target_index: целевой индекс для загрузки.
+            validator: валидатор загружаемых данных.
+        """
+        self._client = client
+        self._cursor = self._client.cursor()
+        self._target_model = target_model
+        self._validator = ModelValidator(self._target_model)
+        self._query = query
+
+    @property
+    def _target_field_names(self):
+        return list(self._target_model.__fields__.keys())
+
+    def load(self, data_for_load: Iterable[dict]):
+        logger.info('Загружаем данные в Postgres.')
+        sql = self._query.get_sql()
         logger.info(f'Сформированный запрос для всатвки данных в Postgres: {sql}')
         execute_batch(self._cursor, sql, self._get_valid_values(data_for_load), settings.db_buffer_size)
         self._client.commit()

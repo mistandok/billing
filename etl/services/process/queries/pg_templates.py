@@ -10,3 +10,26 @@ MOVIES_QUERY = """
     {where_condition}
     ORDER BY film_work.modified
 """
+
+
+BILLING_QUERY = """
+    SELECT
+        fw.id,
+        array_remove(array_agg(sb.title), NULL) subscribe_types,
+        fw.modified_subscribe_date modified_state
+    FROM
+        billing.filmwork fw
+    LEFT JOIN
+        billing.filmwork_subscribe fw_sb
+    ON
+        fw.id = fw_sb.filmwork_id
+    LEFT JOIN
+        billing.subscribe sb
+    ON
+        sb.id = fw_sb.subscribe_id
+    {where_condition}
+    GROUP BY
+        fw.id, fw.modified_subscribe_date
+    ORDER BY
+        fw.modified_subscribe_date
+"""

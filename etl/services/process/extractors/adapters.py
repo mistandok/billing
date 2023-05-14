@@ -76,3 +76,23 @@ class MoviesToBillingAdapter(BaseExtractorAdapter):
             row = Row(row)
             row.exclude_fields(*fields_for_exclude)
             yield row
+
+
+class BillingToMoviesAdapter(BaseExtractorAdapter):
+    """Класс преобразовывает данные для корректного формата, требуемого для movies"""
+
+    def extract(self) -> Generator[dict, None, None]:
+        """
+        Метод позволяет извлекать данные из объекта источника, адаптирует их под нужный формат.
+
+        Yields:
+            Возвращает адаптированные данные из источника.
+        """
+        extracted = super().extract()
+
+        fields_for_exclude = ['modified_state']
+
+        for row in extracted:
+            row = Row(row)
+            row.exclude_fields(*fields_for_exclude)
+            yield row
