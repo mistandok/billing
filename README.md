@@ -41,6 +41,7 @@
     ```docker
     docker-compose -f docker-compose.prod.yml down -v
     docker-compose -f docker-compose.prod.yml up -d --build
+    docker-compose -f docker-compose.prod.yml exec movie-admin python manage.py loaddata dumpdata.json
     ```
     Настройка кластера для mongodb сервиса user-profile
    - ```docker exec -it mongocfg1 bash -c 'mongosh < /scripts/init-configserver.js'```
