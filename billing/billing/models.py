@@ -11,7 +11,7 @@ class Consumer(UUIDMixin, TimeStampedModel):
     subscribe = models.ManyToManyField('Subscribe', through='ConsumerSubscribe')
 
 
-#TODO: Payments - отслеживает платежи клиентов? Если так, то это похоже на историю
+# TODO: Payments - отслеживает платежи клиентов? Если так, то это похоже на историю
 # платежей => можно хранить историю платежей из Stripe?
 class Payment(UUIDMixin):
     """Модель описывает сущность платежа"""
@@ -67,6 +67,9 @@ class Filmwork(UUIDMixin):
 
     class Meta:
         db_table = "billing\".\"filmwork"
+        indexes = [
+            models.Index(fields=['modified_subscribe_date'], name='filmwork_subscribe_date_idx'),
+        ]
 
 
 class FilmworkSubscribe(UUIDMixin):
