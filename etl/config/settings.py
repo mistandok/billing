@@ -1,117 +1,109 @@
 """Модуль содержит настройки для работы ETL."""
 import os
 from collections import namedtuple
-from dataclasses import dataclass
 from pathlib import Path
 from enum import Enum
-
-from dotenv import load_dotenv, find_dotenv
+from pydantic import BaseSettings, Field
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 StateStorageAdapterParams = namedtuple('StateStorageAdapterParams', ['storage_type', 'adapter_params'])
 
-load_dotenv(find_dotenv(os.path.join(
-    BASE_DIR,
-    'config',
-    '.env.prod',
-)))
+DEBUG_ENV = os.path.join(BASE_DIR, 'config', '.env.dev')
+PROD_ENV = None
+
+project_env = DEBUG_ENV
 
 
-@dataclass(frozen=True)
-class EsIndexInfo:
-    """Класс описывает информацию об индексе эластики."""
+class RedisSetting(BaseSettings):
+    """Класс отвечает за настройки редиса."""
 
-    name: str
-    file_path: str
+    port: int = Field(..., env='REDIS_PORT')
+    host: str = Field(..., env='REDIS_HOST')
+
+    class Config:
+        env_file = project_env
+
+
+class MoviesDBSetting(BaseSettings):
+    """Класс отвечает за настройки подключения к бд movie-admin."""
+
+    name: str = Field(..., env='MOVIES_DB_NAME')
+    user: str = Field(..., env='MOVIES_DB_USER')
+    password: str = Field(..., env='MOVIES_DB_PASSWORD')
+    host: str = Field(..., env='MOVIES_DB_HOST')
+    port: int = Field(..., env='MOVIES_DB_PORT')
+
+    def dsl(self) -> dict:
+        return {
+            'dbname': self.name,
+            'user': self.user,
+            'password': self.password,
+            'host': self.host,
+            'port': self.port,
+        }
+
+    class Config:
+        env_file = project_env
+
+
+class BillingDBSetting(BaseSettings):
+    """Класс отвечает за настройки подключения к бд movie-admin."""
+
+    name: str = Field(..., env='BILLING_DB_NAME')
+    user: str = Field(..., env='BILLING_DB_USER')
+    password: str = Field(..., env='BILLING_DB_PASSWORD')
+    host: str = Field(..., env='BILLING_DB_HOST')
+    port: int = Field(..., env='BILLING_DB_PORT')
+
+    def dsl(self) -> dict:
+        return {
+            'dbname': self.name,
+            'user': self.user,
+            'password': self.password,
+            'host': self.host,
+            'port': self.port,
+        }
+
+    class Config:
+        env_file = project_env
+
+
+class Settings(BaseSettings):
+    """Класс отвечает за базовые настройки."""
+
+    time_to_restart_process: int = Field(..., env='TIME_TO_RESTART_PROCESSES_SECONDS')
+    process_is_started_state: str = Field(..., env='PROCESS_IS_STARTED_STATE')
+    date_format: str = Field(..., env='DATE_FORMAT')
+    db_buffer_size: int = Field(..., env='DB_BUFFER_SIZE')
+
+    class Config:
+        env_file = project_env
 
 
 class ETLProcessType(str, Enum):
     """Тип доступных ETL процессов."""
 
-    MOVIE_FILM_WORK = 'movie_film_work'
-    MOVIE_GENRE = 'movie_genre'
-    MOVIE_PERSON = 'movie_person'
-    GENRE_CREATED_LINK = 'genre_created_link'
-    PERSON_CREATED_LINK = 'person_created_link'
-    GENRE_MODIFIED = 'genre_modified'
-    PERSON_MODIFIED = 'person_modified'
+    MOVIE_FILMWORK = 'movie_filmwork'
+    BILLING_FILMWORK = 'billing_filmwork'
 
 
 class QueryType(str, Enum):
     """Клас описывает доступные типы запросов."""
 
-    PG_MOVIE_FILM_WORK = 'pg_movie_filmwork'
-    PG_MOVIE_GENRE = 'pg_movie_genre'
-    PG_MOVIE_PERSON = 'pg_movie_person'
-    PG_GENRE_CREATED_LINK = 'pg_genre_created_link'
-    PG_PERSON_CREATED_LINK = 'pg_person_created_link'
-    PG_PERSON_MODIFIED = 'pg_person_modified'
-    PG_GENRE_MODIFIED = 'pg_genre_modified'
+    # для передачи данных из movie-admin в billing
+    MOVIE_FILMWORK_SELECT = 'movie_filmwork_select'
+    # для передачи данных из billing в movie-admin
+    BILLING_FILMWORK_SELECT = 'billing_filmwork_select'
 
-
-class ElasticsearchIndex(Enum):
-    """Класс описывает индексы для работы с Elasticsearch."""
-
-    MOVIES = EsIndexInfo('movies', os.path.join(BASE_DIR, 'config', 'es_movies_index.json'))
-    GENRES = EsIndexInfo('genres', os.path.join(BASE_DIR, 'config', 'es_genres_index.json'))
-    PERSONS = EsIndexInfo('persons', os.path.join(BASE_DIR, 'config', 'es_persons_index.json'))
-
-
-TIME_TO_RESTART_PROCESSES_SECONDS = 10
-
-REDIS_PORT = os.getenv('REDIS_PORT')
-
-REDIS_HOST = os.getenv('REDIS_HOST')
-
-PG_DSL = {
-    'dbname': os.environ.get('PG_DB_NAME'),
-    'user': os.environ.get('PG_DB_USER'),
-    'password': os.environ.get('PG_DB_PASSWORD'),
-    'host': os.environ.get('PG_DB_HOST'),
-    'port': os.environ.get('PG_DB_PORT'),
-}
-
-ES_HOST = os.environ.get('ES_HOST')
-
-ES_PORT = os.environ.get('ES_PORT')
-
-ES_CONNECTION = f'http://{ES_HOST}:{ES_PORT}'
-
-PROCESS_IS_STARTED_STATE = 'process_is_started'
 
 MODIFIED_STATE = {
-    ETLProcessType.MOVIE_FILM_WORK: 'modified_film_work',
-    ETLProcessType.MOVIE_GENRE: 'modified_film_work_genre',
-    ETLProcessType.MOVIE_PERSON: 'modified_film_work_person',
-    ETLProcessType.PERSON_CREATED_LINK: 'modified_person_created_link',
-    ETLProcessType.GENRE_CREATED_LINK: 'modified_genre_created_link',
-    ETLProcessType.PERSON_MODIFIED: 'modified_person',
-    ETLProcessType.GENRE_MODIFIED: 'modified_genre',
+    ETLProcessType.MOVIE_FILMWORK: 'modified_movie_filmwork',
+    ETLProcessType.BILLING_FILMWORK: 'modified_billing_filmwork',
 }
 
-QUERY_TYPE = {
-    ETLProcessType.MOVIE_FILM_WORK: QueryType.PG_MOVIE_FILM_WORK,
-    ETLProcessType.MOVIE_GENRE: QueryType.PG_MOVIE_GENRE,
-    ETLProcessType.MOVIE_PERSON: QueryType.PG_MOVIE_PERSON,
-    ETLProcessType.PERSON_CREATED_LINK: QueryType.PG_PERSON_CREATED_LINK,
-    ETLProcessType.GENRE_CREATED_LINK: QueryType.PG_GENRE_CREATED_LINK,
-    ETLProcessType.PERSON_MODIFIED: QueryType.PG_PERSON_MODIFIED,
-    ETLProcessType.GENRE_MODIFIED: QueryType.PG_GENRE_MODIFIED,
-}
-
-PROCESS_ES_INDEX = {
-    ETLProcessType.MOVIE_FILM_WORK: ElasticsearchIndex.MOVIES,
-    ETLProcessType.MOVIE_GENRE: ElasticsearchIndex.MOVIES,
-    ETLProcessType.MOVIE_PERSON: ElasticsearchIndex.MOVIES,
-    ETLProcessType.GENRE_CREATED_LINK: ElasticsearchIndex.GENRES,
-    ETLProcessType.PERSON_CREATED_LINK: ElasticsearchIndex.PERSONS,
-    ETLProcessType.PERSON_MODIFIED: ElasticsearchIndex.PERSONS,
-    ETLProcessType.GENRE_MODIFIED: ElasticsearchIndex.GENRES,
-}
-
-DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-
-DB_BUFFER_SIZE = int(os.environ.get('DB_BUFFER_SIZE', 100))
+redis_settings = RedisSetting()
+movies_db_settings = MoviesDBSetting()
+billing_db_settings = BillingDBSetting()
+settings = Settings()

@@ -2,6 +2,8 @@ version: '3'
 
 services:
 
+  ## Auth-сервис
+
   auth_database:
     image: postgres:13.0
     restart: always
@@ -52,7 +54,7 @@ services:
     env_file:
       - ./config/auth/.env.prod
 
-## Billing
+  ## Billing-сервис
 
   billing:
     build:
@@ -79,7 +81,7 @@ services:
       - 7432:7432
 
 
-## Сервис фильмов
+  ## Movie-сервис
 
 
   movie-admin:
@@ -98,8 +100,22 @@ services:
     image: postgres:13.0
     volumes:
       - movie_admin_data:/var/lib/postgresql/data/
+    command: -p 5432
+    ports:
+      - 5432:5432
     env_file:
       - ./config/movie_admin/.env.prod.db
+
+  ## ETL-процессы
+
+  etl-redis:
+    image: redis:latest
+    restart: always
+    command: --port 6383
+    ports:
+      - 6383:6383
+
+  ## Nginx
 
   nginx:
     image: nginx:latest

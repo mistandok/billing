@@ -2,13 +2,14 @@
 
 
 from abc import ABC, abstractmethod
+from collections import UserDict
 from datetime import datetime
 from typing import Generator, Optional
 
 from .extractors import BaseExtractor
 
 
-class Row(dict):
+class Row(UserDict):
     """Класс-помощник для адаптируемых строк."""
 
     def exclude_fields(self, *field_names: str):
@@ -57,8 +58,8 @@ class BaseExtractorAdapter(ABC):
         return self._extractor.last_modified_state
 
 
-class PostgreToElasticsearchAdapter(BaseExtractorAdapter):
-    """Класс преобразует данные из формата PostgreЫЙД к формату, требуемому в Elasticsearch."""
+class MoviesToBillingAdapter(BaseExtractorAdapter):
+    """Класс преобразовывает данные для корректного формата, требуемого для billing"""
 
     def extract(self) -> Generator[dict, None, None]:
         """
@@ -74,5 +75,4 @@ class PostgreToElasticsearchAdapter(BaseExtractorAdapter):
         for row in extracted:
             row = Row(row)
             row.exclude_fields(*fields_for_exclude)
-            row.update({'_id': row.get('id')})
             yield row

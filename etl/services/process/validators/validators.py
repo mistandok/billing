@@ -21,10 +21,10 @@ class BaseValidator(ABC):
         """
 
 
-class ElasticsearchValidator(BaseValidator):
+class ModelValidator(BaseValidator):
     """Класс отвечает за валидацию данных для выгрузки в Elasticsearch."""
 
-    def __init__(self, model: BaseModel):
+    def __init__(self, model: type(BaseModel)):
         """
         Инициализирующий метод.
 
