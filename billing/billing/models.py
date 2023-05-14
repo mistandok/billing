@@ -4,37 +4,11 @@ from django.db import models
 from config.mixins import TimeStampedModel, UUIDMixin
 
 
-class Consumer(TimeStampedModel):
+class Consumer(UUIDMixin, TimeStampedModel):
     """Модель описывает сущность покупателя"""
     user_id = models.UUIDField(verbose_name="ID пользователя", null=True, blank=False)
+    remote_consumer_id = models.CharField(max_length=200, null=True)
     subscribe = models.ManyToManyField('Subscribe', through='ConsumerSubscribe')
-
-
-#TODO: Consumer может иметь >1 подписки => связь М-to-М
-# Мы реализовали через ConsumerSubscribe
-
-# class Subscription(TimeStampedModel):
-#     class SubscribeType(models.TextChoices):
-#         OUR = "OU", "Наш кинотеатр"
-#         AMEDIATEKA = "AM", "Амедиатека"
-# 
-#     subscribe_type = models.CharField(
-#         verbose_name="Тип подписки",
-#         max_length=2,
-#         choices=SubscribeType.choices,
-#         null=True,
-#     )
-#     consumer = models.ForeignKey(
-#         Consumer,
-#         verbose_name="Пользователь",
-#         on_delete=models.CASCADE,
-#         null=True,
-#         blank=False,
-#     )
-#     active = models.BooleanField(
-#         verbose_name="Активная",
-#         default=False,
-#     )
 
 
 #TODO: Payments - отслеживает платежи клиентов? Если так, то это похоже на историю
@@ -55,9 +29,8 @@ class Payment(UUIDMixin):
         null=True,
         blank=False,
     )
-    # TODO: change field to Decimal
-    sum = models.FloatField(verbose_name="Сумма покупки", null=True, blank=False)
-    transaction_id = models.CharField(max_length=300)
+    amount = models.DecimalField(verbose_name="Сумма покупки", null=True, blank=False, max_digits=10, decimal_places=2)
+    transaction_id = models.CharField(max_length=300, null=False, blank=False)
 
     class Meta:
         db_table = "billing\".\"payment"
@@ -71,16 +44,17 @@ class Subscribe(UUIDMixin):
 
     title = models.CharField(
         verbose_name="Тип подписки",
-        max_length=10,
+        max_length=20,
         choices=Type.choices,
         null=False,
-        blank=True
+        blank=False,
+        unique=True,
     )
-    description = models.CharField(max_length=2_000,)
-    price = models.DecimalField(max_digits=5, decimal_places=2)
+    description = models.CharField(verbose_name="Описание", max_length=2_000, null=False, blank=True)
+    price = models.DecimalField(verbose_name="Цена подписки", max_digits=10, decimal_places=2)
 
     class Meta:
-        db_table = "billing\".\"subscription"
+        db_table = "billing\".\"subscribe"
 
 
 class Filmwork(UUIDMixin):
@@ -89,7 +63,6 @@ class Filmwork(UUIDMixin):
         max_length=200
     )
     modified_subscribe_date = models.DateTimeField(null=True, blank=True)
-
     subscribe = models.ManyToManyField(Subscribe, through='FilmworkSubscribe')
 
     class Meta:
@@ -102,13 +75,13 @@ class FilmworkSubscribe(UUIDMixin):
         Filmwork,
         on_delete=models.CASCADE,
         null=False,
-        blank=True
+        blank=False
     )
     subscribe = models.ForeignKey(
         Subscribe,
         on_delete=models.CASCADE,
         null=False,
-        blank=True
+        blank=False
     )
 
     class Meta:
@@ -124,14 +97,14 @@ class ConsumerSubscribe(UUIDMixin, TimeStampedModel):
         Subscribe,
         on_delete=models.CASCADE,
         null=False,
-        blank=True,
+        blank=False,
     )
     consumer = models.ForeignKey(
         Consumer,
         verbose_name="Пользователь",
         on_delete=models.CASCADE,
         null=False,
-        blank=True,
+        blank=False,
     )
 
     class Meta:

@@ -7,19 +7,31 @@ from django.dispatch import receiver
 from billing.models import Filmwork, FilmworkSubscribe
 
 
-@receiver(post_delete, sender=FilmworkSubscribe)
+@receiver(post_delete, sender=FilmworkSubscribe, weak=False)
 def filmwork_subscribe_changed(sender, **kwargs):
+    """
+    Сигнал при удалении связи многие ко многим для фильмов и их подписок.
+
+    Args:
+        sender: отправитель.
+        kwargs: именнованые параметры.
+    """
     instance = kwargs.get('instance', None)
-    raise ValueError('qqq')
     if instance:
         instance.filmwork.modified_subscribe_date = dt.now()
         instance.filmwork.save()
 
 
-@receiver(post_save, sender=FilmworkSubscribe)
+@receiver(post_save, sender=FilmworkSubscribe, weak=False)
 def filmwork_subscribe_changed(sender, **kwargs):
+    """
+    Сигнал при удалении связи многие ко многим для фильмов и их подписок.
+
+    Args:
+        sender: отправитель.
+        kwargs: именнованые параметры.
+    """
     instance = kwargs.get('instance', None)
-    # raise ValueError('qqq')
     if instance:
         instance.filmwork.modified_subscribe_date = dt.now()
         instance.filmwork.save()
