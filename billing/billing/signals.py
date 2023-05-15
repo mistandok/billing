@@ -43,7 +43,7 @@ def create_product_signal(sender, created, instance: Subscribe, *args, **kwargs)
         create_product(instance)
 
 
-# @receiver(post_save, sender=Consumer)
-# def create_product_signal(sender, created, instance: Consumer, *args, **kwargs):
-#     if created:
-#         create_customer(instance)
+@receiver(post_save, sender=Consumer)
+def create_customer_signal(sender, created, instance: Consumer, *args, **kwargs):
+    if created:
+        create_customer(instance)

@@ -13,7 +13,7 @@ class Consumer(UUIDMixin, TimeStampedModel):
         verbose_name="ID в платежной системе", max_length=200, null=True, blank=True
     )
     subscribe = models.ManyToManyField(
-        "Subscribe", verbose_name="Подписки пользователя"
+        "Subscribe", verbose_name="Подписки пользователя", blank=True
     )
 
 

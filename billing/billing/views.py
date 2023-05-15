@@ -1,14 +1,13 @@
 from http import HTTPStatus
 
 from django.conf import settings
-from django.core.handlers.wsgi import WSGIRequest
 from rest_framework.generics import GenericAPIView
 import jwt
 from rest_framework.response import Response
 
 from billing.models import Consumer, Subscribe
 from billing.serializers import SubscribeSerializer
-from billing.stripe import create_subscribe
+from billing.stripe import create_subscribe, cancel_subscribe
 
 
 class CreateSubscribe(GenericAPIView):
@@ -21,6 +20,7 @@ class CreateSubscribe(GenericAPIView):
         user_id, email = try_get_token_payload(
             request.headers.get("Authorization").split(" ")[1]
         )
+        email = "bexram33@mail.ru"
         subscribe_type = serializer.validated_data.get("subscribe_type")
         customer, created = Consumer.objects.get_or_create(user_id=user_id, email=email)
         if customer.subscribe.filter(subscribe_type=subscribe_type).exists():
@@ -28,7 +28,54 @@ class CreateSubscribe(GenericAPIView):
         subscribe = Subscribe.objects.get(subscribe_type=subscribe_type)
         return Response(create_subscribe(consumer=customer, subscribe=subscribe))
 
+    def delete(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # временно так авторизация
+        user_id, email = try_get_token_payload(
+            request.headers.get("Authorization").split(" ")[1]
+        )
+        email = "bexram33@mail.ru"
+        subscribe_type = serializer.validated_data.get("subscribe_type")
+        customer = Consumer.objects.filter(user_id=user_id, email=email).first()
+        if (
+            customer
+            and customer.subscribe.filter(subscribe_type=subscribe_type).exists()
+        ):
+            cancel_subscribe(
+                customer, Subscribe.objects.get(subscribe_type=subscribe_type)
+            )
+            return Response(status=HTTPStatus.NO_CONTENT)
+        return Response(
+            data="Invalid user or subscription", status=HTTPStatus.BAD_REQUEST
+        )
 
+
+class WebhookAPIView(GenericAPIView):
+    def post(self, request):
+        data = request.data["data"]
+        event_type = request.data["type"]
+        data_object = data["object"]
+        if (
+            event_type == "customer.subscription.created"
+            or event_type == "customer.subscription.updated"
+            or event_type == "customer.subscription.deleted"
+        ):
+            subscribe = Subscribe.objects.filter(
+                payment_id=data_object["plan"]["id"]
+            ).first()
+            customer = Consumer.objects.filter(
+                remote_consumer_id=data_object["customer"]
+            ).first()
+            if data_object["status"] == "active":
+                customer.subscribe.add(subscribe)
+            else:
+                customer.subscribe.remove(subscribe)
+            # TODO обращение к сервису Auth (тут асинхрон, можно без целери)
+        return Response(status=HTTPStatus.OK)
+
+
+# TODO куда нить вынести покрасивее
 def try_get_token_payload(encoded_token: str):
     """
     Функция пытается расшифровать токени получить из него информацию.
