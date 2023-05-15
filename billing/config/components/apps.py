@@ -8,6 +8,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "billing.apps.BillingConfig",
+    "drf_yasg",
 ]
 if settings.DEBUG:
     INSTALLED_APPS += []
