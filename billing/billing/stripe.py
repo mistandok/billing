@@ -28,23 +28,24 @@ def create_subscribe(consumer: Consumer, subscribe: Subscribe):
     checkout_session = stripe.checkout.Session.create(
         line_items=[
             {
-                'price': subscribe.payment_id,
-                'quantity': 1,
+                "price": subscribe.payment_id,
+                "quantity": 1,
             },
         ],
-        mode='subscription',
+        mode="subscription",
         success_url="http://localhost:8000/success",
         cancel_url="http://localhost:8000/cancel",
-        customer=consumer.remote_consumer_id
+        customer=consumer.remote_consumer_id,
     )
     return checkout_session.url
+
 
 def cancel_subscribe(consumer: Consumer, subscribe: Subscribe):
     subscriptions = stripe.Subscription.list(
         customer=consumer.remote_consumer_id,
         price=subscribe.payment_id,
-        status='all',
-        expand=['data.default_payment_method']
+        status="all",
+        expand=["data.default_payment_method"],
     )
-    subscription_id=subscriptions["data"][0]["id"]
+    subscription_id = subscriptions["data"][0]["id"]
     stripe.Subscription.delete(subscription_id)

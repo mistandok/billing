@@ -16,8 +16,15 @@ class Consumer(UUIDMixin, TimeStampedModel):
         "Subscribe", verbose_name="Подписки пользователя", blank=True
     )
 
+    class Meta:
+        verbose_name = "Покупатель"
+        verbose_name_plural = "Покупатели"
 
-class Payment(UUIDMixin):
+    def __str__(self):
+        return self.email
+
+
+class Payment(UUIDMixin, TimeStampedModel):
     """Модель описывает сущность платежа"""
 
     subscription = models.ForeignKey(
@@ -45,6 +52,11 @@ class Payment(UUIDMixin):
 
     class Meta:
         db_table = 'billing"."payment'
+        verbose_name = "Платеж"
+        verbose_name_plural = "Платежи"
+
+    def __str__(self):
+        return self.transaction_id
 
 
 class Subscribe(UUIDMixin):
@@ -74,9 +86,11 @@ class Subscribe(UUIDMixin):
 
     class Meta:
         db_table = 'billing"."subscribe'
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
 
     def __str__(self):
-        return f'{self.title}'
+        return f"{self.get_subscribe_type_display()}"
 
 
 class Filmwork(UUIDMixin):
@@ -93,9 +107,11 @@ class Filmwork(UUIDMixin):
                 fields=["modified_subscribe_date"], name="filmwork_subscribe_date_idx"
             ),
         ]
+        verbose_name = "Фильм"
+        verbose_name_plural = "Фильмы"
 
     def __str__(self):
-        return f'{self.title}'
+        return f"{self.title}"
 
 
 class FilmworkSubscribe(UUIDMixin):
@@ -113,3 +129,5 @@ class FilmworkSubscribe(UUIDMixin):
         unique_together = [
             ["filmwork", "subscribe"],
         ]
+        verbose_name = "Фильм в подписке"
+        verbose_name_plural = "Фильмы в подписке"
