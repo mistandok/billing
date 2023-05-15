@@ -75,6 +75,9 @@ class Subscribe(UUIDMixin):
     class Meta:
         db_table = 'billing"."subscribe'
 
+    def __str__(self):
+        return f'{self.title}'
+
 
 class Filmwork(UUIDMixin):
     """Модель описывает сущность кинопроизведения"""
@@ -90,6 +93,9 @@ class Filmwork(UUIDMixin):
                 fields=["modified_subscribe_date"], name="filmwork_subscribe_date_idx"
             ),
         ]
+
+    def __str__(self):
+        return f'{self.title}'
 
 
 class FilmworkSubscribe(UUIDMixin):

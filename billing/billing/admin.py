@@ -1,40 +1,53 @@
 """Модуль интерфейса админки"""
 
 from django.contrib import admin
-from .models import Consumer, Payment, Subscribe, Filmwork, FilmworkSubscribe
+from .models import Consumer, Payment, Subscribe, Filmwork, FilmworkSubscribe, ConsumerSubscribe
+from .utils.filters import SubscribeFilterAdmin, FilmworkFilterAdmin
 
 
 class SubscribeFilmworkInline(admin.TabularInline):
     """Интерфейс подписок у кинопроизведения в админке"""
-
     model = FilmworkSubscribe
-    autocomplete_fields = ("subscribe",)
+    autocomplete_fields = ('subscribe',)
+
+
+class ConsumerSubscribeInline(admin.TabularInline):
+    """Интерфейс подписок у покупателя в админке"""
+    model = ConsumerSubscribe
+    autocomplete_fields = ('subscribe',)
 
 
 @admin.register(Consumer)
 class ConsumerAdmin(admin.ModelAdmin):
     """Интерфейс покупателя в админке"""
-
-    search_fields = ("user_id",)
+    inlines = (ConsumerSubscribeInline,)
+    list_display = ('user_id', 'remote_consumer_id')
+    search_fields = ('user_id',)
+    list_per_page = 20
 
 
 @admin.register(Payment)
 class PaymentsAdmin(admin.ModelAdmin):
     """Интерфейс платежа в админке"""
-
     pass
 
 
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
     """Интерфейс подписки в админке"""
-
-    search_fields = ("title",)
+    search_fields = ('title',)
+    list_filter = (SubscribeFilterAdmin,)
+    list_display = ('title', 'price', 'description')
+    ordering = ('price',)
+    list_per_page = 20
 
 
 @admin.register(Filmwork)
 class FilmworkAdmin(admin.ModelAdmin):
     """Интерфейс кинопроизведения в админке"""
-
     inlines = (SubscribeFilmworkInline,)
-    search_fields = ("title",)
+    list_filter = (FilmworkFilterAdmin,)
+    list_display = ('title', 'modified_subscribe_date')
+    search_fields = ("title__startswith",)
+    ordering = ('title',)
+    list_per_page = 20
