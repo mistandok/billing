@@ -5,7 +5,7 @@ from rest_framework.generics import GenericAPIView
 import jwt
 from rest_framework.response import Response
 
-from billing.models import Consumer, Subscribe
+from billing.models import Consumer, Subscribe, Payment
 from billing.serializers import SubscribeSerializer
 from billing.stripe import create_subscribe, cancel_subscribe
 
@@ -20,7 +20,6 @@ class CreateSubscribe(GenericAPIView):
         user_id, email = try_get_token_payload(
             request.headers.get("Authorization").split(" ")[1]
         )
-        email = "bexram33@mail.ru"
         subscribe_type = serializer.validated_data.get("subscribe_type")
         customer, created = Consumer.objects.get_or_create(user_id=user_id, email=email)
         if customer.subscribe.filter(subscribe_type=subscribe_type).exists():
@@ -35,7 +34,6 @@ class CreateSubscribe(GenericAPIView):
         user_id, email = try_get_token_payload(
             request.headers.get("Authorization").split(" ")[1]
         )
-        email = "bexram33@mail.ru"
         subscribe_type = serializer.validated_data.get("subscribe_type")
         customer = Consumer.objects.filter(user_id=user_id, email=email).first()
         if (
@@ -72,6 +70,17 @@ class WebhookAPIView(GenericAPIView):
             else:
                 customer.subscribe.remove(subscribe)
             # TODO обращение к сервису Auth (тут асинхрон, можно без целери)
+        if event_type == "invoice.paid":
+            payment = Payment()
+            payment.transaction_id = data_object["id"]
+            payment.consumer = Consumer.objects.filter(
+                remote_consumer_id=data_object["customer"]
+            ).first()
+            payment.subscription = Subscribe.objects.filter(
+                payment_id=data_object["lines"]["data"][0]["plan"]["id"]
+            ).first()
+            payment.amount = data_object["lines"]["data"][0]["plan"]["amount"] / 100
+            payment.save()
         return Response(status=HTTPStatus.OK)
 
 
