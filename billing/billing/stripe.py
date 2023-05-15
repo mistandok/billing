@@ -33,8 +33,8 @@ def create_subscribe(consumer: Consumer, subscribe: Subscribe):
             },
         ],
         mode="subscription",
-        success_url="http://localhost:8000/success",
-        cancel_url="http://localhost:8000/cancel",
+        success_url=settings.FRONTEND_SUCCESS_PAYMENT_URL,
+        cancel_url=settings.FRONTEND_UNSUCCESS_PAYMENT_URL,
         customer=consumer.remote_consumer_id,
     )
     return checkout_session.url
