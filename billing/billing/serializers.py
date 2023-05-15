@@ -6,3 +6,8 @@ class SubscribeSerializer(serializers.Serializer):
     subscribe_type = serializers.ChoiceField(
         choices=SUBSCRIBE_TYPE_CHOICES, required=True
     )
+
+
+class WebhookSerializer(serializers.Serializer):
+    type = serializers.CharField(required=True)
+    data = serializers.JSONField(required=True)

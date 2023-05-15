@@ -6,7 +6,7 @@ import jwt
 from rest_framework.response import Response
 
 from billing.models import Consumer, Subscribe, Payment
-from billing.serializers import SubscribeSerializer
+from billing.serializers import SubscribeSerializer, WebhookSerializer
 from billing.stripe import create_subscribe, cancel_subscribe
 
 
@@ -26,6 +26,10 @@ class CreateSubscribe(GenericAPIView):
             return Response(data="Already exists", status=HTTPStatus.BAD_REQUEST)
         subscribe = Subscribe.objects.get(subscribe_type=subscribe_type)
         return Response(create_subscribe(consumer=customer, subscribe=subscribe))
+
+
+class CancelSubscribe(GenericAPIView):
+    serializer_class = SubscribeSerializer
 
     def delete(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -50,6 +54,8 @@ class CreateSubscribe(GenericAPIView):
 
 
 class WebhookAPIView(GenericAPIView):
+    serializer_class = WebhookSerializer
+
     def post(self, request):
         data = request.data["data"]
         event_type = request.data["type"]
