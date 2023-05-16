@@ -7,7 +7,7 @@ from config.mixins import TimeStampedModel, UUIDMixin
 class Consumer(UUIDMixin, TimeStampedModel):
     """Модель описывает сущность покупателя"""
 
-    user_id = models.UUIDField(verbose_name="ID пользователя", null=True, blank=False)
+    user_id = models.UUIDField(verbose_name="ID пользователя", null=True, blank=False, unique=True)
     email = models.EmailField(verbose_name="Email", null=True, blank=False)
     remote_consumer_id = models.CharField(
         verbose_name="ID в платежной системе", max_length=200, null=True, blank=True
@@ -17,8 +17,17 @@ class Consumer(UUIDMixin, TimeStampedModel):
     )
 
     class Meta:
+        db_table = 'billing"."consumer'
         verbose_name = "Покупатель"
         verbose_name_plural = "Покупатели"
+        indexes = [
+            models.Index(
+                fields=["user_id", "email"], name="consumer_user_id_email_idx"
+            ),
+            models.Index(
+                fields=["remote_consumer_id"], name="consumer_remote_consumer_idx"
+            ),
+        ]
 
     def __str__(self):
         return self.email
@@ -54,6 +63,14 @@ class Payment(UUIDMixin, TimeStampedModel):
         db_table = 'billing"."payment'
         verbose_name = "Платеж"
         verbose_name_plural = "Платежи"
+        indexes = [
+            models.Index(
+                fields=["transaction_id"], name="payment_transaction_id_idx"
+            ),
+            models.Index(
+                fields=["consumer"], name="payment_consumer_idx"
+            ),
+        ]
 
     def __str__(self):
         return self.transaction_id
