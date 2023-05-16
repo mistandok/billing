@@ -24,6 +24,7 @@ class CreateSubscribe(GenericAPIView):
         customer, created = Consumer.objects.get_or_create(user_id=user_id, email=email)
         if customer.subscribe.filter(subscribe_type=subscribe_type).exists():
             return Response(data="Already exists", status=HTTPStatus.BAD_REQUEST)
+        # TODO: сделать проверку на существование объекта
         subscribe = Subscribe.objects.get(subscribe_type=subscribe_type)
         return Response(create_subscribe(consumer=customer, subscribe=subscribe))
 
@@ -31,6 +32,7 @@ class CreateSubscribe(GenericAPIView):
 class CancelSubscribe(GenericAPIView):
     serializer_class = SubscribeSerializer
 
+    # TODO: переделать запрос, чтобы получать значение подписки из параметров, а не из тела.
     def delete(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
