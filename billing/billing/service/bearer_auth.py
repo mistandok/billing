@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import jwt
 
 from rest_framework.request import Request
@@ -31,7 +33,7 @@ def generic_bearer_auth(func):
         try:
             self.token_payload = try_bearer_auth(request)
         except (MissBearerAuthorization, MissTokenUserData) as e:
-            return Response(str(e))
+            return Response(str(e), status=HTTPStatus.UNAUTHORIZED)
 
         return func(self, request)
 
