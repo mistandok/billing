@@ -14,3 +14,7 @@ class MissTokenPayloadAttribute(Exception):
     Исключение выбрасывается, при использовании декоратора на аутентификацию через bearer auth при отсутствии
     необходимого атрибута.
     """
+
+
+class MissPaymentSystemRealisation(Exception):
+    """Отсутствует реализация для платежной системы."""
