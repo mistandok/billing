@@ -16,6 +16,7 @@ class StripePaymentSystem(BasePaymentSystem):
 
     def __init__(self):
         self._client = stripe
+        self._client.api_key = settings.STRIPE_SECRET_KEY
 
     def create_customer(self, consumer: Consumer) -> str:
         remote_customer = self._client.Customer.create(email=consumer.email)
