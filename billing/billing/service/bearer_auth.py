@@ -12,7 +12,7 @@ from .utils import is_attribute_in_class
 class BearerTokenMixin:
     """Миксин, который добавляет классовый атрибут токена, необходимый для работы."""
 
-    token_payload = None
+    token_payload: AccessTokenPayload = None
 
 
 def generic_bearer_auth(func):
