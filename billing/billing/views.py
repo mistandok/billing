@@ -1,25 +1,26 @@
 from http import HTTPStatus
 
-from django.conf import settings
 from rest_framework.generics import GenericAPIView
-import jwt
 from rest_framework.response import Response
 
 from billing.models import Consumer, Subscribe, Payment
 from billing.serializers import SubscribeSerializer, WebhookSerializer
 from billing.stripe import create_subscribe, cancel_subscribe
 
+from .service.bearer_auth import generic_bearer_auth, BearerTokenMixin
 
-class CreateSubscribe(GenericAPIView):
+
+class CreateSubscribe(GenericAPIView, BearerTokenMixin):
     serializer_class = SubscribeSerializer
 
+    @generic_bearer_auth
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        # временно так авторизация
-        user_id, email = try_get_token_payload(
-            request.headers.get("Authorization").split(" ")[1]
-        )
+
+        user_id = self.token_payload.sub.user_id
+        email = self.token_payload.sub.email
+
         subscribe_type = serializer.validated_data.get("subscribe_type")
         customer, created = Consumer.objects.get_or_create(user_id=user_id, email=email)
         if customer.subscribe.filter(subscribe_type=subscribe_type).exists():
@@ -29,17 +30,18 @@ class CreateSubscribe(GenericAPIView):
         return Response(create_subscribe(consumer=customer, subscribe=subscribe))
 
 
-class CancelSubscribe(GenericAPIView):
+class CancelSubscribe(GenericAPIView, BearerTokenMixin):
     serializer_class = SubscribeSerializer
 
     # TODO: переделать запрос, чтобы получать значение подписки из параметров, а не из тела.
+    @generic_bearer_auth
     def delete(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        # временно так авторизация
-        user_id, email = try_get_token_payload(
-            request.headers.get("Authorization").split(" ")[1]
-        )
+
+        user_id = self.token_payload.sub.user_id
+        email = self.token_payload.sub.email
+
         subscribe_type = serializer.validated_data.get("subscribe_type")
         customer = Consumer.objects.filter(user_id=user_id, email=email).first()
         if (
@@ -90,30 +92,3 @@ class WebhookAPIView(GenericAPIView):
             payment.amount = data_object["lines"]["data"][0]["plan"]["amount"] / 100
             payment.save()
         return Response(status=HTTPStatus.OK)
-
-
-# TODO куда нить вынести покрасивее
-def try_get_token_payload(encoded_token: str):
-    """
-    Функция пытается расшифровать токени получить из него информацию.
-
-    Args:
-        encoded_token: зашифрованный токен.
-
-    Returns:
-        email и user_id
-    """
-    try:
-        payload = jwt.decode(
-            encoded_token,
-            settings.JWT_SECRET_KEY.encode("utf-8"),
-            algorithms=[settings.JWT_ALGORITHM],
-            options=dict(verify_exp=False),
-        ).get("sub")
-        if "email" not in payload:
-            return Response(data="No email in token", status=HTTPStatus.UNAUTHORIZED)
-        return payload.get("user_id"), payload.get("email")
-    except jwt.PyJWTError:
-        return Response(
-            data="Invalid or expired token.", status=HTTPStatus.UNAUTHORIZED
-        )
