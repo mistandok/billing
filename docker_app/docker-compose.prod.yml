@@ -115,6 +115,19 @@ services:
     ports:
       - 6383:6383
 
+  etl-movie-billing:
+    build:
+      context: ../etl
+      dockerfile: Dockerfile
+    env_file:
+      - ./config/etl/.env.prod
+    depends_on:
+      - billing_db
+      - movie-admin-db
+      - etl-redis
+    restart: always
+
+
   ## Nginx
 
   nginx:
