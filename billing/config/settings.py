@@ -60,3 +60,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "best_hwt_secret_key")
+JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
+
+
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "pk_test_51N4heyLMJMPXrLqCniPCvTCENczfi6wCGVl3zkHxJCW1kPusCrh5IQ2sSQe7MpDpTK8sskfj5tcOIWa09oB0tcEq00QMkOtyZB")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "sk_test_51N4heyLMJMPXrLqC71LLKzWMncnJ5gONI3Ys37sMNEI03YSAhZk3j8DOq6RMxsKnTL9OCaHXyH2Vhk9vbnGpGZtA00TqeXZ0jB")
+
+FRONTEND_SUCCESS_PAYMENT_URL = os.environ.get("FRONTEND_SUCCESS_PAYMENT_URL", "http://localhost:8000/success")
+FRONTEND_UNSUCCESS_PAYMENT_URL = os.environ.get("FRONTEND_UNSUCCESS_PAYMENT_URL", "http://localhost:8000/cancel")
