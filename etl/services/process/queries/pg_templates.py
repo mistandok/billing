@@ -15,7 +15,7 @@ MOVIES_QUERY = """
 BILLING_QUERY = """
     SELECT
         fw.id,
-        array_remove(array_agg(sb.title), NULL) subscribe_types,
+        array_remove(array_agg(sb.subscribe_type), NULL) subscribe_types,
         fw.modified_subscribe_date modified_state
     FROM
         billing.filmwork fw

@@ -56,17 +56,17 @@ services:
 
   ## Billing-сервис
 
-#  billing:
-#    build:
-#      context: ../billing
-#      dockerfile: Dockerfile
-#    env_file:
-#      - ./config/billing/.env.prod
-#    volumes:
-#      - static_billing_volume:/opt/app/static
-#      - media_billing_volume:/opt/app/media
-#    expose:
-#      - 8100
+  billing:
+    build:
+      context: ../billing
+      dockerfile: Dockerfile
+    env_file:
+      - ./config/billing/.env.prod
+    volumes:
+      - static_billing_volume:/opt/app/static
+      - media_billing_volume:/opt/app/media
+    expose:
+      - 8100
 
 
   billing_db:
