@@ -75,7 +75,8 @@ class WebhookAPIView(GenericAPIView):
             event_handler.execute()
         except MissWebhookEventRealisation:
             pass
-        except Exception:
-            return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            raise e
+            # return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
         return Response(status=HTTPStatus.OK)

@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 
 from billing.models import Subscribe, Consumer, Payment
-
 from billing.service.errors import MissWebhookEventRealisation
+from billing.service.remote.auth_service import add_role_to_user_by_subscribe, delete_role_from_user_by_subscribe
 
 
 class WebhookEventType(str, Enum):
@@ -41,10 +41,10 @@ class CustomerSubEventHandler(WebhookEventHandler):
 
         if is_sub_active:
             customer.subscribe.add(subscribe)
+            add_role_to_user_by_subscribe(customer.user_id, subscribe.subscribe_type)
         else:
             customer.subscribe.remove(subscribe)
-
-        # TODO обращение к сервису Auth
+            delete_role_from_user_by_subscribe(customer.user_id, subscribe.subscribe_type)
 
 
 class InvoicePaidEventHandler(WebhookEventHandler):

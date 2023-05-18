@@ -26,3 +26,15 @@ class PaymentError(Exception):
 
 class MissWebhookEventRealisation(Exception):
     """Отсутствует обработка события для вебхука."""
+
+
+class MissAuthRoleForSubscribe(Exception):
+    """Отсутствует описание роли на сервисе AUTH для заданного типа подписки."""
+
+
+class ErrorOnRemoteService(Exception):
+    """Ошибка на удаленном сервисе."""
+
+
+class MissRemoteServiceSettings(Exception):
+    """Отсутствуют настройки удаленного сервиса."""
