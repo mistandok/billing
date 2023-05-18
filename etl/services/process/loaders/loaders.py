@@ -84,8 +84,14 @@ class PostgresUpsertLoader(BaseLoader):
             {self._sql_conflict_condition}
         """
         logger.info(f'Сформированный запрос для всатвки данных в Postgres: {sql}')
-        execute_batch(self._cursor, sql, self._get_valid_values(data_for_load), settings.db_buffer_size)
-        self._client.commit()
+
+        try:
+            execute_batch(self._cursor, sql, self._get_valid_values(data_for_load), settings.db_buffer_size)
+            self._client.commit()
+        except Exception as error:
+            self._client.rollback()
+            logger.error(error)
+
         return True
 
     def _get_valid_values(self, data_for_load: Iterable[dict]):
@@ -124,8 +130,14 @@ class PostgreHardQueryLoader(BaseLoader):
         logger.info('Загружаем данные в Postgres.')
         sql = self._query.get_sql()
         logger.info(f'Сформированный запрос для всатвки данных в Postgres: {sql}')
-        execute_batch(self._cursor, sql, self._get_valid_values(data_for_load), settings.db_buffer_size)
-        self._client.commit()
+
+        try:
+            execute_batch(self._cursor, sql, self._get_valid_values(data_for_load), settings.db_buffer_size)
+            self._client.commit()
+        except Exception as error:
+            self._client.rollback()
+            logger.error(error)
+
         return True
 
     def _get_valid_values(self, data_for_load: Iterable[dict]):

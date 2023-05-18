@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 StateStorageAdapterParams = namedtuple('StateStorageAdapterParams', ['storage_type', 'adapter_params'])
 
 DEBUG_ENV = os.path.join(BASE_DIR, 'config', '.env.dev')
-PROD_ENV = None
+PROD_ENV = os.path.join(BASE_DIR, 'config', '.env.prod')
 
 project_env = DEBUG_ENV
 
