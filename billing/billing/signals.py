@@ -34,7 +34,6 @@ def filmwork_subscribe_changed(sender, instance, **kwargs):
         sender: отправитель.
         kwargs: именнованые параметры.
     """
-
     if instance:
         instance.filmwork.modified_subscribe_date = timezone.now()
         instance.filmwork.save()

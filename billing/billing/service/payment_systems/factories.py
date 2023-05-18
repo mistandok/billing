@@ -3,7 +3,7 @@ from .stripe_payment import StripePaymentSystem
 from ..errors import MissPaymentSystemRealisation
 
 
-def get_payment_system_by_name(name: PaymentSystemName, *args, **kwargs):
+def get_payment_system_by_name(name: PaymentSystemName, *args, **kwargs) -> BasePaymentSystem:
     """
     Функция получает платежную систему по ее наименованию.
 

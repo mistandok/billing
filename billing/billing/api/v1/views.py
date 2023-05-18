@@ -5,12 +5,16 @@ from rest_framework.response import Response
 
 from billing.models import Consumer, Subscribe, Payment
 from billing.serializers import SubscribeSerializer, WebhookSerializer
-from billing.stripe import create_subscribe, cancel_subscribe
 
 from billing.service.bearer_auth import generic_bearer_auth, BearerTokenMixin
 
+from billing.service.errors import PaymentError
+from billing.service.payments import create_customer_subscribe_payment_link, cancel_subscribe_for_user
+
 
 class CreateSubscribe(GenericAPIView, BearerTokenMixin):
+    """АПИ для создания подписки пользователя."""
+
     serializer_class = SubscribeSerializer
 
     @generic_bearer_auth
@@ -20,20 +24,23 @@ class CreateSubscribe(GenericAPIView, BearerTokenMixin):
 
         user_id = self.token_payload.sub.user_id
         email = self.token_payload.sub.email
-
         subscribe_type = serializer.validated_data.get("subscribe_type")
-        customer, created = Consumer.objects.get_or_create(user_id=user_id, email=email)
-        if customer.subscribe.filter(subscribe_type=subscribe_type).exists():
-            return Response(data="Already exists", status=HTTPStatus.BAD_REQUEST)
-        # TODO: сделать проверку на существование объекта
-        subscribe = Subscribe.objects.get(subscribe_type=subscribe_type)
-        return Response(create_subscribe(consumer=customer, subscribe=subscribe))
+
+        try:
+            url = create_customer_subscribe_payment_link(user_id, email, subscribe_type)
+        except PaymentError as e:
+            return Response(data=str(e), status=HTTPStatus.BAD_REQUEST)
+        except Exception:
+            return Response(data='Что-то пошло не так, мы уже решаем проблему', status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        return Response(url)
 
 
 class CancelSubscribe(GenericAPIView, BearerTokenMixin):
+    """АПИ для отмены подписки пользователя."""
+
     serializer_class = SubscribeSerializer
 
-    # TODO: переделать запрос, чтобы получать значение подписки из параметров, а не из тела.
     @generic_bearer_auth
     def delete(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -41,20 +48,17 @@ class CancelSubscribe(GenericAPIView, BearerTokenMixin):
 
         user_id = self.token_payload.sub.user_id
         email = self.token_payload.sub.email
-
         subscribe_type = serializer.validated_data.get("subscribe_type")
-        customer = Consumer.objects.filter(user_id=user_id, email=email).first()
-        if (
-            customer
-            and customer.subscribe.filter(subscribe_type=subscribe_type).exists()
-        ):
-            cancel_subscribe(
-                customer, Subscribe.objects.get(subscribe_type=subscribe_type)
-            )
-            return Response(status=HTTPStatus.NO_CONTENT)
-        return Response(
-            data="Invalid user or subscription", status=HTTPStatus.BAD_REQUEST
-        )
+
+        try:
+            is_sub_canceled = cancel_subscribe_for_user(user_id, email, subscribe_type)
+
+            if is_sub_canceled:
+                return Response(status=HTTPStatus.NO_CONTENT)
+
+            return Response(data="Пользователя с такой подпиской не существует.", status=HTTPStatus.BAD_REQUEST)
+        except Exception:
+            return Response(data='Что-то пошло не так, мы уже решаем проблему', status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 class WebhookAPIView(GenericAPIView):

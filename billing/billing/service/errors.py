@@ -18,3 +18,7 @@ class MissTokenPayloadAttribute(Exception):
 
 class MissPaymentSystemRealisation(Exception):
     """Отсутствует реализация для платежной системы."""
+
+
+class PaymentError(Exception):
+    """Платежная ошибка."""
