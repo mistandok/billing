@@ -55,6 +55,6 @@ def create_customer_signal(sender, created, instance: Consumer, *args, **kwargs)
     """Сигнал при записи покупателя."""
     if created:
         payment_system = get_payment_system_by_name(PaymentSystemName.STRIPE)
-        remote_customer_id = payment_system.create_customer(consumer=instance)
-        instance.remote_consumer_id = remote_customer_id
+        remote_consumer_id = payment_system.create_customer(consumer=instance)
+        instance.remote_consumer_id = remote_consumer_id
         instance.save()

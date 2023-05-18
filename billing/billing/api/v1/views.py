@@ -3,13 +3,12 @@ from http import HTTPStatus
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from billing.models import Consumer, Subscribe, Payment
 from billing.serializers import SubscribeSerializer, WebhookSerializer
 
 from billing.service.bearer_auth import generic_bearer_auth, BearerTokenMixin
-
-from billing.service.errors import PaymentError
+from billing.service.errors import PaymentError, MissWebhookEventRealisation
 from billing.service.payments import create_customer_subscribe_payment_link, cancel_subscribe_for_user
+from billing.service.webhooks import get_handler_by_event_type
 
 
 class CreateSubscribe(GenericAPIView, BearerTokenMixin):
@@ -62,37 +61,21 @@ class CancelSubscribe(GenericAPIView, BearerTokenMixin):
 
 
 class WebhookAPIView(GenericAPIView):
+    """АПИ для обработки событий, которые посылает платежная система."""
+
     serializer_class = WebhookSerializer
 
     def post(self, request):
         data = request.data["data"]
         event_type = request.data["type"]
         data_object = data["object"]
-        if (
-            event_type == "customer.subscription.created"
-            or event_type == "customer.subscription.updated"
-            or event_type == "customer.subscription.deleted"
-        ):
-            subscribe = Subscribe.objects.filter(
-                payment_id=data_object["plan"]["id"]
-            ).first()
-            customer = Consumer.objects.filter(
-                remote_consumer_id=data_object["customer"]
-            ).first()
-            if data_object["status"] == "active":
-                customer.subscribe.add(subscribe)
-            else:
-                customer.subscribe.remove(subscribe)
-            # TODO обращение к сервису Auth (тут асинхрон, можно без целери)
-        if event_type == "invoice.paid":
-            payment = Payment()
-            payment.transaction_id = data_object["id"]
-            payment.consumer = Consumer.objects.filter(
-                remote_consumer_id=data_object["customer"]
-            ).first()
-            payment.subscription = Subscribe.objects.filter(
-                payment_id=data_object["lines"]["data"][0]["plan"]["id"]
-            ).first()
-            payment.amount = data_object["lines"]["data"][0]["plan"]["amount"] / 100
-            payment.save()
+
+        try:
+            event_handler = get_handler_by_event_type(event_type, data_object)
+            event_handler.execute()
+        except MissWebhookEventRealisation:
+            pass
+        except Exception:
+            return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
         return Response(status=HTTPStatus.OK)

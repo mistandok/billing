@@ -22,3 +22,7 @@ class MissPaymentSystemRealisation(Exception):
 
 class PaymentError(Exception):
     """Платежная ошибка."""
+
+
+class MissWebhookEventRealisation(Exception):
+    """Отсутствует обработка события для вебхука."""
