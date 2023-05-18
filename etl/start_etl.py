@@ -7,7 +7,9 @@ import psycopg2
 from psycopg2.extras import DictCursor
 from config.settings import redis_settings, movies_db_settings, billing_db_settings, settings
 from etl.services.process.processes import ETLProcess
-from etl.services.process.utils import get_billing_to_movie_etl_process_parameters
+from etl.services.process.utils import (
+    get_billing_to_movie_etl_process_parameters, get_movie_to_billing_etl_process_parameters
+)
 from services.decorators.resiliency import backoff
 from services.context_managers.managers import redis_context
 
@@ -22,9 +24,18 @@ def main():
         contextlib.closing(connect(**movies_db_settings.dsl(), cursor_factory=DictCursor)) as movies_db,
         contextlib.closing(connect(**billing_db_settings.dsl(), cursor_factory=DictCursor)) as billing_db,
     ):
-        process_parameters = get_billing_to_movie_etl_process_parameters(redis, movies_db, billing_db)
+        billing_to_movie_etl_process_parameters = get_billing_to_movie_etl_process_parameters(
+            redis, movies_db, billing_db
+        )
+        movie_to_billing_etl_process_parameters = get_movie_to_billing_etl_process_parameters(
+            redis, movies_db, billing_db
+        )
+
         while True:
-            with ETLProcess(process_parameters) as process:
+            with ETLProcess(movie_to_billing_etl_process_parameters) as process:
+                process.start()
+
+            with ETLProcess(billing_to_movie_etl_process_parameters) as process:
                 process.start()
 
             sleep(timedelta(seconds=settings.time_to_restart_process).total_seconds())
