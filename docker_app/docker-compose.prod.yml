@@ -24,8 +24,8 @@ services:
       - refresh_auth_redis
     env_file:
       - ./config/auth/.env.prod
-    expose:
-      - 5100
+    ports:
+      - 5100:5100
 
   auth_redis:
     image: redis:latest
