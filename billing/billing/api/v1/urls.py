@@ -1,6 +1,6 @@
 from django.urls import path
 
-from billing.views import CreateSubscribe, CancelSubscribe, WebhookAPIView
+from .views import CreateSubscribe, CancelSubscribe, WebhookAPIView
 
 urlpatterns = [
     path("create-subscribe/", CreateSubscribe.as_view()),

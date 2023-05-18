@@ -7,7 +7,7 @@ from billing.models import Consumer, Subscribe, Payment
 from billing.serializers import SubscribeSerializer, WebhookSerializer
 from billing.stripe import create_subscribe, cancel_subscribe
 
-from .service.bearer_auth import generic_bearer_auth, BearerTokenMixin
+from billing.service.bearer_auth import generic_bearer_auth, BearerTokenMixin
 
 
 class CreateSubscribe(GenericAPIView, BearerTokenMixin):
