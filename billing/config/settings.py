@@ -70,3 +70,6 @@ STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "sk_test_51N4heyLMJMPXrL
 
 FRONTEND_SUCCESS_PAYMENT_URL = os.environ.get("FRONTEND_SUCCESS_PAYMENT_URL", "http://localhost:8000/success")
 FRONTEND_UNSUCCESS_PAYMENT_URL = os.environ.get("FRONTEND_UNSUCCESS_PAYMENT_URL", "http://localhost:8000/cancel")
+
+AUTH_SERVICE_URL = os.environ.get("AUTH_SERVICE_URL", "localhost:60000")
+AUTH_SERVICE_TOKEN = os.environ.get("AUTH_SERVICE_TOKEN", "token")

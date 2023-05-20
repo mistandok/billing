@@ -83,6 +83,12 @@ class Subscribe(UUIDMixin):
         SUBSCRIBER = "SU", "Наш кинотеатр"
         AMEDIATEKA = "AM", "Амедиатека"
 
+    class CurrencyType(models.TextChoices):
+        USD = "usd", "USD"
+
+    class IntervalType(models.TextChoices):
+        MONTH = "month", "месяц"
+
     subscribe_type = models.CharField(
         verbose_name="Тип подписки",
         max_length=2,
@@ -91,11 +97,29 @@ class Subscribe(UUIDMixin):
         unique=True,
     )
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
-    price = models.DecimalField(
-        verbose_name="Цена подписки USD", max_digits=10, decimal_places=2, null=True
+    price = models.DecimalField(verbose_name="Цена подписки", max_digits=10, decimal_places=2, null=True)
+    currency = models.CharField(
+        verbose_name="Тип валюты",
+        max_length=5,
+        choices=CurrencyType.choices,
+        null=True,
+        blank=False,
+    )
+    interval = models.CharField(
+        verbose_name="Интервал действия подписки",
+        max_length=20,
+        choices=IntervalType.choices,
+        null=True,
+        blank=False,
+    )
+    product_id = models.CharField(
+        verbose_name="ID продукта в платежной системе",
+        max_length=200,
+        null=True,
+        blank=True,
     )
     payment_id = models.CharField(
-        verbose_name="ID продукта в платежной системе",
+        verbose_name="ID цены в платежной системе",
         max_length=200,
         null=True,
         blank=True,
