@@ -21,7 +21,7 @@ class Command(BaseCommand):
             options: именнованные аргументы.
         """
 
-        for sub_type in ('SU', 'AM'):
+        for sub_type in Subscribe.SubscribeType:
 
             item = Subscribe.objects.filter(subscribe_type=sub_type).exists()
 
@@ -29,4 +29,4 @@ class Command(BaseCommand):
                 continue
 
             instance = Subscribe(**factory(sub_type).to_dict())
-            post_save.send(Subscribe, instance=instance, created=True)
+            instance.save()

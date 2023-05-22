@@ -4,6 +4,7 @@ from dataclasses import dataclass, asdict
 from decimal import Decimal
 from enum import Enum
 
+from billing.models import Subscribe
 from config.settings import BASE_DIR
 
 
@@ -43,24 +44,24 @@ class SubscribeBase:
 @dataclass(slots=True)
 class SubscribeCinema(SubscribeBase):
     """Класс описывает подписку `Наш кинотеатр`."""
-    subscribe_type: str = 'SU'
+    subscribe_type: str = Subscribe.SubscribeType.SUBSCRIBER
     price: Decimal = 199
-    currency: str = 'usd'
-    interval: str = 'month'
+    currency: str = Subscribe.CurrencyType.USD
+    interval: str = Subscribe.IntervalType.MONTH
 
 
 @dataclass(slots=True)
 class SubscribeAmediateka(SubscribeBase):
     """Класс описывает подписку `Амедиатека`."""
-    subscribe_type: str = 'AM'
+    subscribe_type: str = Subscribe.SubscribeType.AMEDIATEKA
     price: Decimal = 259
-    currency: str = 'usd'
-    interval: str = 'month'
+    currency: str = Subscribe.CurrencyType.USD
+    interval: str = Subscribe.IntervalType.MONTH
 
 
 def factory(prefix):
     subscribe_value = {
-        'SU': SubscribeCinema,
-        'AM': SubscribeAmediateka
+        Subscribe.SubscribeType.SUBSCRIBER: SubscribeCinema,
+        Subscribe.SubscribeType.AMEDIATEKA: SubscribeAmediateka
     }
     return subscribe_value.get(prefix)(prefix)
