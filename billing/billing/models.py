@@ -7,7 +7,9 @@ from config.mixins import TimeStampedModel, UUIDMixin
 class Consumer(UUIDMixin, TimeStampedModel):
     """Модель описывает сущность покупателя"""
 
-    user_id = models.UUIDField(verbose_name="ID пользователя", null=True, blank=False, unique=True)
+    user_id = models.UUIDField(
+        verbose_name="ID пользователя", null=True, blank=False, unique=True
+    )
     email = models.EmailField(verbose_name="Email", null=True, blank=False)
     remote_consumer_id = models.CharField(
         verbose_name="ID в платежной системе", max_length=200, null=True, blank=True
@@ -64,12 +66,8 @@ class Payment(UUIDMixin, TimeStampedModel):
         verbose_name = "Платеж"
         verbose_name_plural = "Платежи"
         indexes = [
-            models.Index(
-                fields=["transaction_id"], name="payment_transaction_id_idx"
-            ),
-            models.Index(
-                fields=["consumer"], name="payment_consumer_idx"
-            ),
+            models.Index(fields=["transaction_id"], name="payment_transaction_id_idx"),
+            models.Index(fields=["consumer"], name="payment_consumer_idx"),
         ]
 
     def __str__(self):
@@ -97,7 +95,9 @@ class Subscribe(UUIDMixin):
         unique=True,
     )
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
-    price = models.DecimalField(verbose_name="Цена подписки", max_digits=10, decimal_places=2, null=True)
+    price = models.DecimalField(
+        verbose_name="Цена подписки", max_digits=10, decimal_places=2, null=True
+    )
     currency = models.CharField(
         verbose_name="Тип валюты",
         max_length=5,
@@ -124,6 +124,7 @@ class Subscribe(UUIDMixin):
         null=True,
         blank=True,
     )
+    active = models.BooleanField(verbose_name="Подписка активна", default=True)
 
     class Meta:
         db_table = 'billing"."subscribe'
