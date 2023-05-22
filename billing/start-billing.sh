@@ -13,8 +13,7 @@ fi
 
 python ./manage.py migrate
 python ./manage.py createsuperuser_if_none_exists --user=admin --password=admin
-python ./manage.py create_subscribes --subscribe_type=US --description=n --price=2 --currency=USD --interval=mounth
+python ./manage.py create_subscribes
 exec gunicorn config.wsgi:application --bind $GUNICORN_HOST:$GUNICORN_PORT
 
 exec "$@"
-
