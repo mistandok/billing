@@ -26,7 +26,7 @@ async def user_login(
         "login": login,
         "password": pwd
     }
-    url = f'http://{settings.auth_host}/auth/api/v1/account/login'
+    url = f'http://{settings.auth_host}:{settings.auth_port}/auth/api/v1/account/login'
     body, headers, status = await api_request(api_session, 'POST', url, json=query)
     return body.get('access_token'), body.get('refresh_token')
 
@@ -51,5 +51,5 @@ async def signup_user(
         "email": email,
         "password": pwd
     }
-    url = f'http://{settings.auth_host}/auth/api/v1/account/signup'
+    url = f'http://{settings.auth_host}:{settings.auth_port}/auth/api/v1/account/signup'
     await api_request(api_session, 'POST', url, json=query)

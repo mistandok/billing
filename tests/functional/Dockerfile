@@ -1,8 +1,8 @@
 FROM python:3.11-slim
 
-ENV APP_DIR=/ugc_service/tests/functional
+ENV APP_DIR=/tests/functional
 
-ENV PYTHONPATH "${PYTHONPATH}:/ugc_service"
+ENV PYTHONPATH "${PYTHONPATH}:/"
 
 WORKDIR $APP_DIR
 
@@ -26,4 +26,4 @@ RUN chmod u+x $APP_DIR/start-tests.sh
 
 USER tests
 
-ENTRYPOINT ["/ugc_service/tests/functional/start-tests.sh"]
+ENTRYPOINT ["/tests/functional/start-tests.sh"]

@@ -65,8 +65,8 @@ services:
     volumes:
       - static_billing_volume:/opt/app/static
       - media_billing_volume:/opt/app/media
-    expose:
-      - 8100
+    ports:
+      - 8100:8100
 
 
   billing_db:

@@ -12,7 +12,7 @@ async def test_cancel_subscribe(
 ):
     """Тестирование доступоности ручки отмены подписки пользователя."""
 
-    url = f'http://{settings.billing_host}/billing/api/v1/cancel-subscribe/'
+    url = f'http://{settings.billing_host}:{settings.billing_port}/billing/api/v1/cancel-subscribe'
     expected_body = {
         "name": "Cancel Subscribe",
         "description": "АПИ для отмены подписки пользователя.",

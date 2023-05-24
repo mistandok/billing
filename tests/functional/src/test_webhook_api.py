@@ -12,7 +12,7 @@ async def test_webhook_api(
 ):
     """Тестирование доступоности ручки обработки событий, которые посылает платежная система."""
 
-    url = f'http://{settings.billing_host}/billing/api/v1/webhook/'
+    url = f'http://{settings.billing_host}:{settings.billing_port}/billing/api/v1/webhook/'
     expected_body = {
         "name": "Webhook Api",
         "description": "АПИ для обработки событий, которые посылает платежная система.",

@@ -22,7 +22,7 @@ async def test_create_subscribe(
     """Тестирование ручки предоставления ссылки на оплату подписки."""
 
     token = prepared_tokens.get('test_user').get('access_token')
-    url = f'http://{settings.billing_host}/billing/api/v1/create-subscribe/'
+    url = f'http://{settings.billing_host}:{settings.billing_port}/billing/api/v1/create-subscribe/'
 
     body, headers, status = await api_request(api_session, 'POST', url, json=query, token=token)
 
@@ -45,7 +45,7 @@ async def test_incorrect_create_subscribe(
     """Тестирование предоставления ссылки на оплату подписки с некорректными параметрами."""
 
     token = prepared_tokens.get('test_user').get('access_token')
-    url = f'http://{settings.billing_host}/billing/api/v1/create-subscribe/'
+    url = f'http://{settings.billing_host}:{settings.billing_port}/billing/api/v1/create-subscribe/'
 
     body, headers, status = await api_request(api_session, 'POST', url, json=query, token=token)
 
