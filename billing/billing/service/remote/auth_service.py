@@ -29,7 +29,7 @@ def get_role_by_subscribe(subscribe_type: str) -> AuthRoleType:
     """
     mapping = {
         'SU': AuthRoleType.SUBSCRIBER,
-        'AV': AuthRoleType.AMEDIATEKA,
+        'AM': AuthRoleType.AMEDIATEKA,
     }
 
     try:

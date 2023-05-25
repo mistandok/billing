@@ -42,6 +42,8 @@
     docker-compose -f docker-compose.prod.yml down -v
     docker-compose -f docker-compose.prod.yml up -d --build
     docker-compose -f docker-compose.prod.yml exec movie-admin python manage.py loaddata dumpdata.json
+    docker-compose -f docker-compose.tests.yml down -v
+    docker-compose -f docker-compose.tests.yml up -d --build
     ```
    
     ЭТО ПОКА НЕ НУЖНО ДЕЛАТЬ
@@ -50,6 +52,8 @@
    - ```docker exec -it mongors1n1 bash -c 'mongosh < /scripts/init-shard01.js'```
    - ```docker exec -it mongors2n1 bash -c 'mongosh < /scripts/init-shard02.js'```
    - ```docker exec -it mongos1 bash -c 'mongosh < /scripts/init-router.js'```
+
+
 
 <p align="right"><a href="#readme-top">вверх</a></p>
 
