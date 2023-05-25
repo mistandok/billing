@@ -7,8 +7,9 @@ from billing.serializers import SubscribeSerializer, WebhookSerializer
 
 from billing.service.bearer_auth import generic_bearer_auth, BearerTokenMixin
 from billing.service.errors import PaymentError, MissWebhookEventRealisation
-from billing.service.payments import create_customer_subscribe_payment_link, cancel_subscribe_for_user
+from billing.service.payments import PaymentManager
 from billing.service.webhooks import get_handler_by_event_type
+from billing.service.payment_systems.interfaces import PaymentSystemName
 
 
 class CreateSubscribe(GenericAPIView, BearerTokenMixin):
@@ -26,7 +27,8 @@ class CreateSubscribe(GenericAPIView, BearerTokenMixin):
         subscribe_type = serializer.validated_data.get("subscribe_type")
 
         try:
-            url = create_customer_subscribe_payment_link(user_id, email, subscribe_type)
+            payment_manager = PaymentManager(PaymentSystemName.STRIPE)
+            url = payment_manager.create_customer_subscribe_payment_link(user_id, email, subscribe_type)
         except PaymentError as e:
             return Response(data=str(e), status=HTTPStatus.BAD_REQUEST)
         except Exception:
@@ -50,7 +52,8 @@ class CancelSubscribe(GenericAPIView, BearerTokenMixin):
         subscribe_type = serializer.validated_data.get("subscribe_type")
 
         try:
-            is_sub_canceled = cancel_subscribe_for_user(user_id, email, subscribe_type)
+            payment_manager = PaymentManager(PaymentSystemName.STRIPE)
+            is_sub_canceled = payment_manager.cancel_subscribe_for_user(user_id, email, subscribe_type)
 
             if is_sub_canceled:
                 return Response(status=HTTPStatus.NO_CONTENT)

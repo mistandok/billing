@@ -16,7 +16,7 @@ services:
       - 6432
 
   auth_service:
-    image: mistandok/auth-service:v2.0.2
+    image: mistandok/auth-service:v2.0.3
     restart: always
     depends_on:
       - auth_database
@@ -24,8 +24,8 @@ services:
       - refresh_auth_redis
     env_file:
       - ./config/auth/.env.prod
-    ports:
-      - 5100:5100
+    expose:
+      - 5100
 
   auth_redis:
     image: redis:latest
@@ -57,9 +57,7 @@ services:
   ## Billing-сервис
 
   billing:
-    build:
-      context: ../billing
-      dockerfile: Dockerfile
+    image: mistandok/billing:v1.0.0
     env_file:
       - ./config/billing/.env.prod
     volumes:
@@ -77,13 +75,11 @@ services:
     env_file:
       - ./config/billing/.env.prod.db
     command: -p 7432
-    ports:
-      - 7432:7432
+    expose:
+      - 7432
 
 
   ## Movie-сервис
-
-
   movie-admin:
     image: mikhailkushnerev/online-cinema-admin-panel:v2.0.5
     volumes:
@@ -101,8 +97,8 @@ services:
     volumes:
       - movie_admin_data:/var/lib/postgresql/data/
     command: -p 5432
-    ports:
-      - 5432:5432
+    expose:
+      - 5432
     env_file:
       - ./config/movie_admin/.env.prod.db
 
@@ -112,13 +108,11 @@ services:
     image: redis:latest
     restart: always
     command: --port 6383
-    ports:
-      - 6383:6383
+    expose:
+      - 6383
 
   etl-movie-billing:
-    build:
-      context: ../etl
-      dockerfile: Dockerfile
+    image: mistandok/etl-movie-billing:v1.0.0
     env_file:
       - ./config/etl/.env.prod
     depends_on:

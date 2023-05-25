@@ -16,7 +16,7 @@ services:
       - 6432:6432
 
   auth_service:
-    image: mistandok/auth-service:v2.0.2
+    image: mistandok/auth-service:v2.0.3
     restart: always
     depends_on:
       - auth_database
