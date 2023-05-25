@@ -57,9 +57,7 @@ services:
   ## Billing-сервис
 
   billing:
-    build:
-      context: ../billing
-      dockerfile: Dockerfile
+    image: mistandok/billing:v1.0.0
     env_file:
       - ./config/billing/.env.prod
     volumes:
@@ -114,9 +112,7 @@ services:
       - 6383
 
   etl-movie-billing:
-    build:
-      context: ../etl
-      dockerfile: Dockerfile
+    image: mistandok/etl-movie-billing:v1.0.0
     env_file:
       - ./config/etl/.env.prod
     depends_on:
