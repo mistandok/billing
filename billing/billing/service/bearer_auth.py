@@ -82,8 +82,6 @@ def try_get_token_payload(encoded_token: str) -> AccessTokenPayload:
             encoded_token,
             settings.JWT_SECRET_KEY.encode("utf-8"),
             algorithms=[settings.JWT_ALGORITHM],
-            # TODO: удалить в итоговом проекте.
-            options=dict(verify_exp=False),
         ))
     except jwt.PyJWTError:
         raise MissBearerAuthorization("Invalid or expired token.")
