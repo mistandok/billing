@@ -21,16 +21,33 @@
 
 ## Репозитории
 - [Сервис биллинга](https://github.com/mistandok/graduate_work)
+- [Админка фильмов](https://github.com/mistandok/new_admin_panel_sprint_3)
+- [Сервис аутентификации](https://github.com/mistandok/Auth_sprint_1)
 
 ## Описание
 
-Общую архитектуру взаимодействия сервисов можно посмотреть на схеме `----------`, ее можно найти в папке `./architecture`
+Вот и подошло к концу наше путешествие вместе с практикумом :) Хочется поблагодарить всю команду ревьюверов за ту поддержку и анализ наших проектов, которую вы нам предоставляли на протяжении полугода. 
+Было очень приятно с вами поработать. Надеюсь, что когда-нибудь встретимся на общих проектах :) 
+
+В качестве итоговой работы нами было принято решение реализовать биллинговую систему. 
+Необходимый пул задач был реализован: у пользователя есть возможность зарегистрироваться в кинотеатре, приобрести подписку разных типов. Также пользователь может отписаться от любого типа подписки.
+Информация о подписках пользователя передается на сервис auth (через REST API) и в дальнейшем обеспечивает ему доступ к необходимым ресурсам кинотеатра согласно типу подписки.
+Есть возможность настраивать доступность фильмов по одной или нескольким типам подписки (Эта информация также актуализируется на связанных сервисах через ETL процессы).
+
+Для ознакомления с общей архитектурой проекта можно перейти по ссылке ниже:
+- [Архитектура](https://github.com/mistandok/graduate_work/tree/main/architecture)
+
+Для ознакомления с системой классов, архитектурой бизнес логики и организации данных сервиса биллинга можно перейти по ссылке ниже:
+- [Архитектура классов биллинга](https://github.com/mistandok/graduate_work/tree/main/architecture/billing-service)
+
+Для ознакомления с архитектурой системы классов ETL процессов можно перейти по ссылке ниже:
+- [Архитектура ETL процессов](https://github.com/mistandok/graduate_work/tree/main/architecture/etl)
+
 
 В данном спринте реализованы:
-- сервис [профилей пользоваетлей](https://github.com/mistandok/graduate_work/tree/main/user-profile) для хранения купленных пользователем фильмов
-  Подробности в README сервиса
-- сервис [биллинга](https://github.com/mistandok/graduate_work/tree/main/billing) для осуществления пользователями платежей
-
+- [сервис биллинга](https://github.com/mistandok/graduate_work/tree/main/billing) - администрирование подписок, доступности фильмов по подпискам. Предоставляет API для подписки или отмены подписки.
+- [ETL процессы по перегонке данных между админкой фильмов и биллингом](https://github.com/mistandok/graduate_work/tree/main/etl) -  позволяет редактировать доступность фильмов непосредственно на сервисе биллинга, не нагромождая логику в movies_admin.
+- [профиль пользователя](https://github.com/mistandok/graduate_work/tree/main/user-profile) - сервис реализован, но не интегрирован в общую систему. В будущем позволит внедрить покупку фильмов конкретным пользователем. Позволит хранить его покупки в отдельном сервисе, это позволит не нагружать биллинг лишними запросами, чтобы проверить, есть у пользователя этот фильм и может ли он его посмотреть?
 
 ## Запуск
 
@@ -38,34 +55,56 @@
 
 1) Старт проекта:
 
-    ```docker
-    docker-compose -f docker-compose.prod.yml down -v
-    docker-compose -f docker-compose.prod.yml up -d --build
-    docker-compose -f docker-compose.prod.yml exec movie-admin python manage.py loaddata dumpdata.json
-    docker-compose -f docker-compose.tests.yml down -v
-    docker-compose -f docker-compose.tests.yml up -d --build
-    ```
-   
-    ЭТО ПОКА НЕ НУЖНО ДЕЛАТЬ
-    Настройка кластера для mongodb сервиса user-profile
-   - ```docker exec -it mongocfg1 bash -c 'mongosh < /scripts/init-configserver.js'```
-   - ```docker exec -it mongors1n1 bash -c 'mongosh < /scripts/init-shard01.js'```
-   - ```docker exec -it mongors2n1 bash -c 'mongosh < /scripts/init-shard02.js'```
-   - ```docker exec -it mongos1 bash -c 'mongosh < /scripts/init-router.js'```
+Наш биллинг-сервис пользуется сторонней платежной системой stripe. Для корректной работы необходимо, чтобы stripe был настроен на нашу ссылку вебхуков, чтобы посылать туда события.
+Для этого необходимо установить [stripe cli](https://stripe.com/docs/stripe-cli)
+Также необходимо иметь аккаунт на страйпе. Мы специально завели тестовый аккаунт. Данные для входа:
 
+```start
+arti-anton@yandex.ru
+yandex_practicum_2023
+```
 
+Запуск основных сервисов и загрузка дампа фильмов (выполнить команды в консоли):
+
+```docker
+docker-compose -f docker-compose.prod.yml down -v
+docker-compose -f docker-compose.prod.yml up -d --build
+docker-compose -f docker-compose.prod.yml exec movie-admin python manage.py loaddata dumpdata.json
+```
+
+Инициализация вебхуков для stripe (выполнить команды в консоли)
+
+```stripe
+stripe login - перейти по ссылке и ввести данные выше. Компьютер авторизируется для работы со страйпом.
+stripe listen --forward-to 127.0.0.1:80/billing/api/v1/webhook/
+```
+
+Запуск тестирование ручек биллинга:
+
+```docker-test
+docker-compose -f docker-compose.tests.yml down -v
+docker-compose -f docker-compose.tests.yml up -d --build
+```
 
 <p align="right"><a href="#readme-top">вверх</a></p>
 
 ## Список доступных урлов
 
-  1) [Swagger](http://127.0.0.1/api/openapi) сервиса [профилей пользоваетлей](https://github.com/mistandok/graduate_work/tree/main/user-profile). Для проверки API можно использовать токен из README сервиса.
+1) [Админка биллинга](http://127.0.0.1/admin/)
+2) [Админка фильмов](http://127.0.0.1/movie-admin/) 
 
 <p align="right"><a href="#readme-top">вверх</a></p>
 
 ## Использование
 
-пользовательский токен:
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNjg0MDg4MTkzLCJqdGkiOiI5NmZiNGQzNi1iNzc5LTQ4NjAtOGJhZC02M2FlYjFlODYwNGYiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjp7InVzZXJfaWQiOiIwYjQ4MTBjZi05Zjk1LTQyZTctOWMxYS0xYjdhYWQwM2FjZTIiLCJ1c2VyX3JvbGVzIjpbInVzZXIiXSwidXNlcl9hZ2VudCI6Imd1ZXN0X3BjIiwiZW1haWwiOiJhcnRpLWFudG9uQHlhbmRleC5ydSIsInJlZnJlc2hfanRpIjoiODJmNDMwNTQtZmYyZS00NTRlLThmM2MtNjFmNzYzMWQyM2I4In0sIm5iZiI6MTY4NDA4ODE5MywiZXhwIjoxNjg0MDk1MzkzfQ.MeS2XN0OV9nXXBHM1ZheBPzMsZ8KKzdC8Of1yoB9uxI
+Для удобства и наглядного представления о том, как работает API был сформирован json с командами для postman c типичным пайплайном, по которому будет использовано наше API.
+Ниже приведено описание шагов, которое можно сделать, чтобы посмотреть на работу сервисов:
+
+1) Произвести вызов `signup` - зарегистрирует пользователя в кинотеатре
+2) Произвести вызов `login` - пользователь аутентифицируется и авторизируется в кинотеатре, получив пару токенов. Скопируйте `access_token`
+3) Произвести вызов `create sibscribe`, указав в Authorization токен, полученный на предыдущем шаге. В результате выполнения ручки получите платежную ссылку, по которой нужно перейти для оплаты. Вбейте карту: 4242 4242 4242 4242, cvv: 123, Срок действия: 12/34, оплатите. 
+4) Можно зайти в [Админка биллинга](http://127.0.0.1/admin/) и убедиться, что у пользователя появилась подписка. 
+5) Можно вызвать ручку `get auth user roles`, чтобы убедиться, что роли появились и на сервисе auth. Для этого нужно на сайте [JWT](https://jwt.io/) извлечь из токена, полученного на шаге 2, идентификатор пользователя, вставить его в URL, в Authorization указать токен с шага 2. 
+6) Произвести вызов `cancel subscribe`, указав в Authorization токен, полученный на 2 шаге. Убедиться через [Админка биллинга](http://127.0.0.1/admin/) и шаг 5, что роль отсутствует как в биллинге, так и на сервисе auth.
 
 <p align="right"><a href="#readme-top">вверх</a></p>
