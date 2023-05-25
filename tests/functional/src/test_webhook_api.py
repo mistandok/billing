@@ -13,6 +13,7 @@ async def test_webhook_api(
     """Тестирование доступоности ручки обработки событий, которые посылает платежная система."""
 
     url = f'http://{settings.billing_host}:{settings.billing_port}/billing/api/v1/webhook/'
+    header_host = f'{settings.billing_header_host}:{settings.billing_port}'
     expected_body = {
         "name": "Webhook Api",
         "description": "АПИ для обработки событий, которые посылает платежная система.",
@@ -43,7 +44,7 @@ async def test_webhook_api(
         }
     }
 
-    body, headers, status = await api_request(api_session, 'OPTIONS', url)
+    body, headers, status = await api_request(api_session, 'OPTIONS', url, header_host=header_host)
 
     assert body == expected_body
 

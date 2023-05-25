@@ -2,7 +2,6 @@
 
 import aiohttp
 import backoff
-from aiohttp import ClientSession
 
 
 @backoff.on_exception(
@@ -19,7 +18,8 @@ async def api_request(
         url: str,
         params: dict | None = None,
         json: dict | None = None,
-        token: str | None = None
+        token: str | None = None,
+        header_host: str | None = None
 ) -> tuple:
     """Функция отвечает за запросы к API.
 
@@ -32,8 +32,8 @@ async def api_request(
         params: параметры запроса к API в теле запроса.
             Параметры со значением None фильтруются и не участвуют в запросе.
         token: токен пользователя.
+        header_host: имя домена, для которого предназначен запрос и, опционально, номер порта.
     """
-
     if params:
         params = {key: value for key, value in params.items() if value is not None}
     if json:
@@ -42,7 +42,12 @@ async def api_request(
     if token:
         api_session.headers.update({'Authorization': f'Bearer {token}'})
     else:
-        api_session.headers.clear()
+        api_session.headers.pop('Authorization', None)
+
+    if header_host:
+        api_session.headers.update({'Host': header_host})
+    else:
+        api_session.headers.pop('Host', None)
 
     async with api_session.request(
             request_method,

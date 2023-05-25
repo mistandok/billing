@@ -23,8 +23,15 @@ async def test_create_subscribe(
 
     token = prepared_tokens.get('test_user').get('access_token')
     url = f'http://{settings.billing_host}:{settings.billing_port}/billing/api/v1/create-subscribe/'
+    header_host = f'{settings.billing_header_host}:{settings.billing_port}'
 
-    body, headers, status = await api_request(api_session, 'POST', url, json=query, token=token)
+    body, headers, status = await api_request(
+        api_session,
+        'POST',
+        url,
+        json=query,
+        token=token,
+        header_host=header_host)
 
     assert expected_body in body
     assert expected_status == status
@@ -46,8 +53,15 @@ async def test_incorrect_create_subscribe(
 
     token = prepared_tokens.get('test_user').get('access_token')
     url = f'http://{settings.billing_host}:{settings.billing_port}/billing/api/v1/create-subscribe/'
+    header_host = f'{settings.billing_header_host}:{settings.billing_port}'
 
-    body, headers, status = await api_request(api_session, 'POST', url, json=query, token=token)
+    body, headers, status = await api_request(
+        api_session,
+        'POST',
+        url,
+        json=query,
+        token=token,
+        header_host=header_host)
 
     assert expected_body == body
     assert expected_status == status

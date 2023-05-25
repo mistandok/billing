@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     billing_host: str = Field(..., env='BILLING_HOST')
     billing_port: str = Field(..., env='BILLING_PORT')
+    billing_header_host: str = Field(..., env='BILLING_HEADER_HOST')
 
     auth_host: str = Field(..., env='AUTH_HOST')
     auth_port: str = Field(..., env='AUTH_PORT')
@@ -37,12 +38,14 @@ class DataBaseSettings(BaseSettings):
     billing_pg_host: str = Field(..., env='BILLING_DB_HOST')
     billing_pg_port: str = Field(..., env='BILLING_DB_PORT')
     billing_pg_name: str = Field(..., env='BILLING_POSTGRES_DB')
+    billing_schema: str = Field(..., env='BILLING_DB_SCHEMA')
 
     auth_pg_username: str = Field(..., env='AUTH_POSTGRES_USER')
     auth_pg_host: str = Field(..., env='AUTH_DB_HOST')
     auth_pg_port: str = Field(..., env='AUTH_DB_PORT')
     auth_pg_password: str = Field(..., env='AUTH_POSTGRES_PASSWORD')
     auth_pg_name: str = Field(..., env='AUTH_POSTGRES_DB')
+    auth_schema: str = Field(..., env='AUTH_DB_SCHEMA')
 
     class Config:
         env_file = project_env
