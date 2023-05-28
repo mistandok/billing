@@ -119,10 +119,6 @@ class RedisStorage(KeyValueStorage):
 class KeyValueStorageFactory:
     """Фабрика классов для Key-Value хранилищ."""
 
-    storages = {
-        StorageType.REDIS: RedisStorage,
-    }
-
     @staticmethod
     def storage_by_client(client, *args, **kwargs) -> KeyValueStorage:
         """

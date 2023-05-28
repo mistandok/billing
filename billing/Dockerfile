@@ -24,7 +24,8 @@ RUN  apt-get update \
      && chown web:web -R $APP_DIR \
      && mkdir $APP_DIR/static \
      && mkdir $APP_DIR/media \
-     && pip install --upgrade pip
+     && pip install --upgrade pip \
+     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -r requirements.txt
 

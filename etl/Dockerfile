@@ -19,7 +19,8 @@ RUN  apt-get update \
      && groupadd -r web \
      && useradd -d $APP_DIR -r -g web web \
      && chown web:web -R $APP_DIR \
-     && pip install --upgrade pip
+     && pip install --upgrade pip \
+     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -r $APP_DIR/requirements.txt
 
