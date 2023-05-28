@@ -1,5 +1,7 @@
 """Модуль, запускающий `uvicorn` сервер для FastApi-приложения."""
 
+from contextlib import asynccontextmanager
+
 import uvicorn
 from redis.asyncio.client import Redis
 from fastapi import FastAPI
@@ -16,7 +18,30 @@ description = """
 ### API для управлния профилями пользователей.<br>
 """
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Фунцкция, производящая действия при старте и при завершении работы сервера."""
+
+    redis.redis = await Redis(host=settings.redis_host, port=settings.redis_port)
+
+    mongodb.mongo_client = AsyncIOMotorClient(
+        host=[
+            f'{mongodb_settings.mongos1_host}:{mongodb_settings.mongos1_port}',
+            f'{mongodb_settings.mongos2_host}:{mongodb_settings.mongos2_port}',
+        ],
+        serverSelectionTimeoutMS=mongodb_settings.timeout_ms,
+        uuidRepresentation='standard',
+    )
+
+    yield
+
+    mongodb.mongo_client.close()
+    await redis.redis.close()
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.project_name,
     version=settings.project_version,
     description=description,
@@ -34,30 +59,6 @@ app = FastAPI(
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
 )
-
-
-@app.on_event('startup')
-async def startup():
-    """Метод создает соединения при старте сервера."""
-
-    redis.redis = await Redis(host=settings.redis_host, port=settings.redis_port)
-
-    mongodb.mongo_client = AsyncIOMotorClient(
-        host=[
-            f'{mongodb_settings.mongos1_host}:{mongodb_settings.mongos1_port}',
-            f'{mongodb_settings.mongos2_host}:{mongodb_settings.mongos2_port}',
-        ],
-        serverSelectionTimeoutMS=mongodb_settings.timeout_ms,
-        uuidRepresentation='standard',
-    )
-
-
-@app.on_event('shutdown')
-async def shutdown():
-    """Метод разрывает соединения при отключении сервера."""
-
-    mongodb.mongo_client.close()
-    await redis.redis.close()
 
 
 app.include_router(user_purchased_films_router, prefix='/profiles/api/v1/user-profile', tags=['user-profile'])

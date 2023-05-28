@@ -1,4 +1,4 @@
-"""Модуль содерижт API для сервиса user-preferences."""
+"""Модуль содерижт API для сервиса user-profile."""
 
 from fastapi import APIRouter, Depends, Query
 
