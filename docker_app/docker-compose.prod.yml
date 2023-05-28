@@ -57,7 +57,7 @@ services:
   ## Billing-сервис
 
   billing:
-    image: mistandok/billing:v1.0.0
+    image: mistandok/billing:v1.0.1
     env_file:
       - ./config/billing/.env.prod
     volumes:
@@ -112,7 +112,7 @@ services:
       - 6383
 
   etl-movie-billing:
-    image: mistandok/etl-movie-billing:v1.0.0
+    image: mistandok/etl-movie-billing:v1.0.1
     env_file:
       - ./config/etl/.env.prod
     depends_on:
