@@ -1,6 +1,6 @@
 """Модуль, дающий возможность работать с Redis."""
 
-from aioredis import Redis
+from redis.asyncio.client import Redis
 
 
 redis: Redis | None = None
