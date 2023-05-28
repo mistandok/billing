@@ -1,7 +1,7 @@
 """Модуль, запускающий `uvicorn` сервер для FastApi-приложения."""
 
 import uvicorn
-import aioredis
+from redis.asyncio.client import Redis
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -40,11 +40,7 @@ app = FastAPI(
 async def startup():
     """Метод создает соединения при старте сервера."""
 
-    redis.redis = await aioredis.create_redis_pool(
-        (settings.redis_host, settings.redis_port),
-        minsize=10,
-        maxsize=20,
-    )
+    redis.redis = await Redis(host=settings.redis_host, port=settings.redis_port)
 
     mongodb.mongo_client = AsyncIOMotorClient(
         host=[
@@ -61,8 +57,7 @@ async def shutdown():
     """Метод разрывает соединения при отключении сервера."""
 
     mongodb.mongo_client.close()
-    redis.redis.close()
-    await redis.redis.wait_closed()
+    await redis.redis.close()
 
 
 app.include_router(user_purchased_films_router, prefix='/profiles/api/v1/user-profile', tags=['user-profile'])
